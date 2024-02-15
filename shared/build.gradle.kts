@@ -30,10 +30,16 @@ kotlin {
     
     sourceSets {
         commonMain.dependencies {
-            //put your multiplatform dependencies here
+            implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(kotlin("test-common"))
+            implementation(kotlin("test-annotations-common"))
+            implementation(libs.mockk)
+            implementation(libs.truthish)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }
