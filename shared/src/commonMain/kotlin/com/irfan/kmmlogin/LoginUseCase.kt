@@ -1,8 +1,7 @@
 package com.irfan.kmmlogin
 
-class LoginUseCase {
-
+class LoginUseCase(private val loginRepository: LoginRepository) {
      operator fun invoke(){
-       TODO("Not Implemented")
+        loginRepository.doLogin()
     }
 }
