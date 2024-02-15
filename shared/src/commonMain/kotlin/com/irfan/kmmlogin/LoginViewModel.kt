@@ -10,12 +10,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
-class LoginViewModel(private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default+ Job())) {
-//    private val customCoroutineScope = CoroutineScope(Job()) //
+class LoginViewModel(
+    private val loginUseCase: LoginUseCase,
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default + Job())
+) {
+
+
+    //    private val customCoroutineScope = CoroutineScope(Job()) //
     private val _loginStateFlow = MutableStateFlow(LoginViewState())
     val loginStateFlow: StateFlow<LoginViewState> = _loginStateFlow
 
     fun doLogin() {
-        TODO("Not Implemented")
+        loginUseCase.invoke()
     }
 }
