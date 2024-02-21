@@ -3,8 +3,9 @@ package com.irfan.kmmlogin.Test
 
 import com.irfan.kmmlogin.LoginUseCase
 import com.irfan.kmmlogin.LoginViewModel
-import com.irfan.kmmlogin.utilities.TestUtility
+import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
+import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -18,13 +19,14 @@ class LoginViewModelShould {
     private lateinit var loginViewModel: LoginViewModel
 
     @BeforeTest
-    fun setup(){
-        TestUtility.setup(this)
+    fun setUp() {
+        MockKAnnotations.init(this, relaxUnitFun = true)
         loginViewModel = LoginViewModel(loginUseCase)
     }
+
     @AfterTest
     fun tearDown(){
-        TestUtility.tearDown()
+        unmockkAll()
     }
     @Test
     fun invokeLoginUseCase() {

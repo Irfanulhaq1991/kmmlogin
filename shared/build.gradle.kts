@@ -36,7 +36,7 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(kotlin("test-common"))
             implementation(kotlin("test-annotations-common"))
-            implementation(libs.mockk)
+            implementation("io.mockk:mockk:1.8.13.kotlin13")
             implementation(libs.truthish)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.coroutines.test)
