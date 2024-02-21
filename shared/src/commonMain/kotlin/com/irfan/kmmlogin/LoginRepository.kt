@@ -1,8 +1,8 @@
 package com.irfan.kmmlogin
 
-class LoginRepository {
+class LoginRepository(private val remoteDataSource: RemoteDataSource) {
     fun doLogin() {
-        TODO("Not yet implemented")
+        remoteDataSource.executeRemoteCall()
     }
     
 }

@@ -1,4 +1,4 @@
-package com.irfan.kmmlogin.Test
+package com.irfan.kmmlogin.test
 
 
 import com.irfan.kmmlogin.LoginUseCase

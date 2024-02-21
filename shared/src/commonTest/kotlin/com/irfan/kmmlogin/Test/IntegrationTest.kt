@@ -1,9 +1,10 @@
-package com.irfan.kmmlogin.Test
+package com.irfan.kmmlogin.test
 
 import com.irfan.kmmlogin.LoginRepository
 import com.irfan.kmmlogin.LoginUseCase
 import com.irfan.kmmlogin.LoginViewModel
 import com.irfan.kmmlogin.LoginViewState
+import com.irfan.kmmlogin.RemoteDataSource
 import com.varabyte.truthish.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,7 +20,8 @@ class IntegrationTest {
     private val testScope = TestScope(UnconfinedTestDispatcher());
     @Test
     fun doLoginTest() = runTest {
-        val loginRepository = LoginRepository()
+        val remoteDataSource = RemoteDataSource()
+        val loginRepository = LoginRepository(remoteDataSource)
         val loginUseCase = LoginUseCase(loginRepository)
         val loginViewModel = LoginViewModel(loginUseCase,testScope)
         val loginSpy = LoginViewSpy(loginViewModel, testScope)
