@@ -1,6 +1,6 @@
 package com.irfan.kmmlogin.test
 
-import com.irfan.kmmlogin.LoginRepository
+import com.irfan.kmmlogin.UserRepo
 import com.irfan.kmmlogin.LoginUseCase
 import com.irfan.kmmlogin.LoginViewModel
 import com.irfan.kmmlogin.LoginViewState
@@ -21,8 +21,8 @@ class IntegrationTest {
     @Test
     fun doLoginTest() = runTest {
         val remoteDataSource = RemoteDataSource()
-        val loginRepository = LoginRepository(remoteDataSource)
-        val loginUseCase = LoginUseCase(loginRepository)
+        val userRepo = UserRepo(remoteDataSource)
+        val loginUseCase = LoginUseCase(userRepo)
         val loginViewModel = LoginViewModel(loginUseCase,testScope)
         val loginSpy = LoginViewSpy(loginViewModel, testScope)
         loginSpy.create()

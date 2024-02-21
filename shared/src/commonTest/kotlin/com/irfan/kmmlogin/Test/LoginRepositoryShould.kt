@@ -1,6 +1,6 @@
 package com.irfan.kmmlogin.test
 
-import com.irfan.kmmlogin.LoginRepository
+import com.irfan.kmmlogin.UserRepo
 import com.irfan.kmmlogin.RemoteDataSource
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
@@ -14,12 +14,12 @@ class LoginRepositoryShould {
 
     @MockK
     private lateinit var remoteDataSource: RemoteDataSource
-    private lateinit var loginRepository: LoginRepository
+    private lateinit var userRepo: UserRepo
 
     @BeforeTest
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        loginRepository = LoginRepository(remoteDataSource)
+        userRepo = UserRepo(remoteDataSource)
     }
 
     @AfterTest
@@ -29,7 +29,7 @@ class LoginRepositoryShould {
 
     @Test
     fun callRemoteDataSource(){
-        loginRepository.doLogin()
+        userRepo.doLogin()
         verify { remoteDataSource.executeRemoteCall() }
     }
 }

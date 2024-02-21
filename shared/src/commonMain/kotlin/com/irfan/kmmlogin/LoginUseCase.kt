@@ -1,7 +1,7 @@
 package com.irfan.kmmlogin
 
-class LoginUseCase(private val loginRepository: LoginRepository) {
+class LoginUseCase(private val userRepo: UserRepo) {
      operator fun invoke(){
-        loginRepository.doLogin()
+        userRepo.doLogin()
     }
 }
