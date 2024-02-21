@@ -1,7 +1,7 @@
 package com.irfan.kmmlogin.test
 
-import com.irfan.kmmlogin.UserRepo
-import com.irfan.kmmlogin.RemoteDataSource
+import com.irfan.kmmlogin.UsrRepo
+import com.irfan.kmmlogin.usrRmtDtaSrc
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import io.mockk.unmockkAll
@@ -13,13 +13,13 @@ import kotlin.test.Test
 class LoginRepositoryShould {
 
     @MockK
-    private lateinit var remoteDataSource: RemoteDataSource
-    private lateinit var userRepo: UserRepo
+    private lateinit var usrRmtDtaSrc: usrRmtDtaSrc
+    private lateinit var usrRepo: UsrRepo
 
     @BeforeTest
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        userRepo = UserRepo(remoteDataSource)
+        usrRepo = UsrRepo(usrRmtDtaSrc)
     }
 
     @AfterTest
@@ -29,7 +29,7 @@ class LoginRepositoryShould {
 
     @Test
     fun callRemoteDataSource(){
-        userRepo.doLogin()
-        verify { remoteDataSource.executeRemoteCall() }
+        usrRepo.authntict()
+        verify { usrRmtDtaSrc.authntcat() }
     }
 }

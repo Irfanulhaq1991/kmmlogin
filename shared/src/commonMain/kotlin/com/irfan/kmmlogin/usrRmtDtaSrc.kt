@@ -1,7 +1,7 @@
 package com.irfan.kmmlogin
 
-class RemoteDataSource {
-    fun executeRemoteCall() {
+class usrRmtDtaSrc {
+    fun authntcat() {
         TODO("Not yet implemented")
     }
 

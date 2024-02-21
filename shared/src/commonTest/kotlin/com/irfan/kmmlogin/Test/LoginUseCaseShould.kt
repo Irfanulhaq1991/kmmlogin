@@ -1,6 +1,6 @@
 package com.irfan.kmmlogin.test
 
-import com.irfan.kmmlogin.UserRepo
+import com.irfan.kmmlogin.UsrRepo
 import com.irfan.kmmlogin.LoginUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
@@ -15,11 +15,11 @@ class LoginUseCaseShould {
 
     private lateinit var loginUseCase:LoginUseCase
     @MockK
-    private lateinit var userRepo: UserRepo
+    private lateinit var usrRepo: UsrRepo
     @BeforeTest
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
-        loginUseCase = LoginUseCase(userRepo)
+        loginUseCase = LoginUseCase(usrRepo)
     }
 
     @AfterTest
@@ -29,6 +29,6 @@ class LoginUseCaseShould {
     @Test
     fun invokeRepository(){
         loginUseCase()
-        verify { userRepo.doLogin() }
+        verify { usrRepo.authntict() }
     }
 }
