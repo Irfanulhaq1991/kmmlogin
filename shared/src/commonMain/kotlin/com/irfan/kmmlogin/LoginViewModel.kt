@@ -21,6 +21,21 @@ class LoginViewModel(
     val loginStateFlow: StateFlow<LoginViewState> = _loginStateFlow
 
     fun doLogin(userName:String,password:String) {
-        loginUseCase.invoke(userName,password)
+        _loginStateFlow.update { oldState ->
+            oldState.copy(isLoading = true)
+        }.run {
+           loginUseCase.invoke(userName,password)
+            .fold({
+                _loginStateFlow.update { oldState->
+                    oldState.copy(isLoading = false,isError = true, user = it)
+                }
+
+            },{
+                _loginStateFlow.update {oldState ->
+                    oldState.copy(isLoading = false,isError = true, message = it.message?:"")
+                }
+            })
+        }
+
     }
 }

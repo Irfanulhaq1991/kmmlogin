@@ -37,7 +37,7 @@ class IntegrationTest {
         loginSpy.create()
         loginSpy.donLogin("###","###")
         val loginViewStates = loginSpy.loginViewStates;
-        assertThat(loginViewStates.size).isEqualTo(2)
+        assertThat(loginViewStates.size).isEqualTo(3)
         assertThat(loginViewStates[1].isLoading).isEqualTo(true)
     }
 }
