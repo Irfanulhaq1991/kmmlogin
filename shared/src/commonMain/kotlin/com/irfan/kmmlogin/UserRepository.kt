@@ -4,9 +4,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 
-class UsrRepo(private val usrRmtDtaSrc: UsrRmtDtaSrc) {
-   suspend fun authntict(userName:String,password:String):Result<User> = withContext(Dispatchers.IO){
-        usrRmtDtaSrc.authntcat(userName,password)
+class UserRepository(private val userRemoteDataSource: IUserRemoteDataSource) : IUserRepository {
+   override suspend fun authenticate(userName:String, password:String):Result<User> = withContext(Dispatchers.IO){
+        userRemoteDataSource.authenticate(userName,password)
             .fold({
                 Result.success(it.toUser())
             },{

@@ -1,11 +1,11 @@
 package com.irfan.kmmlogin
 
-class UsrRmtDtaSrc(private val api: UsrApi) {
-  suspend  fun authntcat(username:String,password:String): Result<UsrRmtDto> {
+class UserRemoteDataSource(private val api: UsrApi) : IUserRemoteDataSource {
+  override suspend fun authenticate(username:String, password:String): Result<UserRemoteDto> {
         try {
             val response = api.authntcat(username,password)
             if (response.statusCode == 200) {
-                return Result.success(response.usrRmtDto!!)
+                return Result.success(response.userRemoteDto!!)
             }else{
                 return Result.failure(Throwable("Not valid user"))
             }

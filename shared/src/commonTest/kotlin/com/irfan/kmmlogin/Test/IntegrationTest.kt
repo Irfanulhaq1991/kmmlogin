@@ -1,21 +1,17 @@
 package com.irfan.kmmlogin.test
 
-import com.irfan.kmmlogin.UsrRepo
+import com.irfan.kmmlogin.UserRepository
 import com.irfan.kmmlogin.LoginUseCase
 import com.irfan.kmmlogin.LoginViewModel
 import com.irfan.kmmlogin.LoginViewState
-import com.irfan.kmmlogin.UserRmtRspnseDto
+import com.irfan.kmmlogin.UserRemoteRspnseDto
 import com.irfan.kmmlogin.UsrApi
-import com.irfan.kmmlogin.UsrRmtDtaSrc
-import com.irfan.kmmlogin.UsrRmtDto
+import com.irfan.kmmlogin.UserRemoteDataSource
+import com.irfan.kmmlogin.UserRemoteDto
 import com.irfan.kmmlogin.utilities.CountDownLatch
 import com.varabyte.truthish.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -27,21 +23,21 @@ class IntegrationTest {
 
     private val testScope = TestScope(UnconfinedTestDispatcher());
     private val successUserApi = object :UsrApi{
-        override suspend fun authntcat(username: String, password: String): UserRmtRspnseDto {
-            return UserRmtRspnseDto(UsrRmtDto("###",0),200)
+        override suspend fun authntcat(username: String, password: String): UserRemoteRspnseDto {
+            return UserRemoteRspnseDto(UserRemoteDto("###",0),200)
         }
     }
 
     private val errorUserApi = object :UsrApi{
-        override suspend fun authntcat(username: String, password: String): UserRmtRspnseDto {
+        override suspend fun authntcat(username: String, password: String): UserRemoteRspnseDto {
             return throw Exception("No Network")
         }
     }
 
     @Test
     fun successLoginTest() = runTest {
-        val usrRmtDtaSrc = UsrRmtDtaSrc(successUserApi)
-        val usrRepo = UsrRepo(usrRmtDtaSrc)
+        val userRemoteDataSource = UserRemoteDataSource(successUserApi)
+        val usrRepo = UserRepository(userRemoteDataSource)
         val loginUseCase = LoginUseCase(usrRepo)
         val loginViewModel = LoginViewModel(loginUseCase,testScope)
         val loginSpy = LoginViewSpy(3,loginViewModel, testScope)
@@ -57,8 +53,8 @@ class IntegrationTest {
     }
     @Test
     fun errorLoginTest() = runTest {
-        val usrRmtDtaSrc = UsrRmtDtaSrc(errorUserApi)
-        val usrRepo = UsrRepo(usrRmtDtaSrc)
+        val userRemoteDataSource = UserRemoteDataSource(errorUserApi)
+        val usrRepo = UserRepository(userRemoteDataSource)
         val loginUseCase = LoginUseCase(usrRepo)
         val loginViewModel = LoginViewModel(loginUseCase,testScope)
         val loginSpy = LoginViewSpy(3,loginViewModel, testScope)
@@ -76,8 +72,8 @@ class IntegrationTest {
 
     @Test
     fun loginOldStateRetainTest() = runTest {
-        val usrRmtDtaSrc = UsrRmtDtaSrc(successUserApi)
-        val usrRepo = UsrRepo(usrRmtDtaSrc)
+        val userRemoteDataSource = UserRemoteDataSource(successUserApi)
+        val usrRepo = UserRepository(userRemoteDataSource)
         val loginUseCase = LoginUseCase(usrRepo)
         val loginViewModel = LoginViewModel(loginUseCase,testScope)
         val loginSpy = LoginViewSpy(3,loginViewModel, testScope)

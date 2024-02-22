@@ -1,65 +1,54 @@
 package com.irfan.kmmlogin.test
 
+import com.irfan.kmmlogin.IUserRemoteDataSource
 import com.irfan.kmmlogin.User
-import com.irfan.kmmlogin.UserRmtRspnseDto
-import com.irfan.kmmlogin.UsrRepo
-import com.irfan.kmmlogin.UsrRmtDtaSrc
-import com.irfan.kmmlogin.UsrRmtDto
+import com.irfan.kmmlogin.UserRemoteDto
+import com.irfan.kmmlogin.UserRepository
 import com.varabyte.truthish.assertThat
-import io.mockk.impl.annotations.MockK
-import io.mockk.MockKAnnotations
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.every
-
-
-import io.mockk.runs
-import io.mockk.unmockkAll
-import io.mockk.verify
+import io.mockative.Mock
+import io.mockative.any
+import io.mockative.classOf
+import io.mockative.coEvery
+import io.mockative.mock
 import kotlinx.coroutines.test.runTest
-import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+
 import kotlin.test.Test
 
-class LoginRepositoryShould {
+class LoginRepositoryShould{
 
-    @MockK
-    private lateinit var usrRmtDtaSrc: UsrRmtDtaSrc
 
-    private lateinit var usrRepo: UsrRepo
+    @Mock
+    private val userRemoteDataSource = mock(classOf<IUserRemoteDataSource>())
+    private lateinit var usrRepo:UserRepository
 
     @BeforeTest
-    fun setUp() {
-        MockKAnnotations.init(this, relaxUnitFun = true)
-        usrRepo = UsrRepo(usrRmtDtaSrc)
-    }
-
-    @AfterTest
-    fun dearDown() {
-        unmockkAll()
+    fun setup(){
+        usrRepo = UserRepository(userRemoteDataSource)
     }
 
     @Test
     fun callRemoteDataSource()= runTest{
-        coEvery { usrRmtDtaSrc.authntcat(any(),any()) } returns Result.success(UsrRmtDto("",200))
-        usrRepo.authntict("###","###")
-        coVerify { usrRmtDtaSrc.authntcat(any(),any()) }
+        coEvery{ userRemoteDataSource.authenticate(any(),any()) }.returns( Result.success(
+            UserRemoteDto("",200)))
+        usrRepo.authenticate("###","###")
+        coEvery { userRemoteDataSource.authenticate(any(),any())}
     }
     @Test
     fun returnDomainModel() = runTest{
-       val usrRmtDto =  UsrRmtDto("",200)
-        coEvery { usrRmtDtaSrc.authntcat(any(),any()) } returns Result.success(usrRmtDto)
-        val result = usrRepo.authntict("##","###").getOrThrow()
+       val userRemoteDto =  UserRemoteDto("",200)
+        coEvery { userRemoteDataSource.authenticate(any(),any()) }.returns(Result.success(userRemoteDto))
+        val result = usrRepo.authenticate("##","###").getOrThrow()
         assertThat(result).isInstanceOf(User::class)
     }
 
     @Test
     fun returnError() = runTest(){
-        coEvery { usrRmtDtaSrc.authntcat(any(),any()) } returns Result.failure<UsrRmtDto>(Throwable("Error"))
-        val result = usrRepo.authntict("##","###")
+        coEvery { userRemoteDataSource.authenticate(any(),any()) }.returns(Result.failure<UserRemoteDto>(Throwable("Error")))
+        val result = usrRepo.authenticate("##","###")
         assertThat(result.isFailure).isTrue()
         result.onFailure {
             assertThat(it.message).isEqualTo("Error")
-        }
+       }
      }
 }

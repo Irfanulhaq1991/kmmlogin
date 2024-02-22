@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 
 class LoginViewModel(
-    private val loginUseCase: LoginUseCase,
+    private val loginUseCase: ILoginUseCase,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default + Job())
 ) {
     private var  job: Job = Job()

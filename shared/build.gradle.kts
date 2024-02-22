@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinCocoapods)
     alias(libs.plugins.androidLibrary)
+    id("com.google.devtools.ksp") version "1.9.21-1.0.15"
+
 }
 
 kotlin {
@@ -36,16 +38,20 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(kotlin("test-common"))
             implementation(kotlin("test-annotations-common"))
-         //   implementation("io.mockk:mockk:1.9.3.kotlin12")
-            implementation("app.cash.turbine:turbine:1.0.0")
-            implementation("io.mockk:mockk:1.13.9")
+            implementation("io.mockative:mockative:2.0.1")
             implementation(libs.truthish)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.coroutines.test)
         }
     }
 }
-
+dependencies {
+    configurations
+        .filter { it.name.startsWith("ksp") && it.name.contains("Test") }
+        .forEach {
+            add(it.name, "io.mockative:mockative-processor:2.0.1")
+        }
+}
 android {
     namespace = "com.irfan.kmmlogin"
     compileSdk = 34

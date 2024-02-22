@@ -1,15 +1,16 @@
 package com.irfan.kmmlogin.test
 
 
+import com.irfan.kmmlogin.ILoginUseCase
 import com.irfan.kmmlogin.LoginUseCase
 import com.irfan.kmmlogin.LoginViewModel
 import com.irfan.kmmlogin.User
-import io.mockk.MockKAnnotations
-import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
-import io.mockk.unmockkAll
-import io.mockk.verify
+import io.mockative.Mock
+import io.mockative.any
+import io.mockative.classOf
+import io.mockative.coEvery
+import io.mockative.mock
+import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -17,23 +18,18 @@ import kotlin.test.Test
 
 class LoginViewModelShould {
 
-    @MockK
-    private lateinit var loginUseCase: LoginUseCase
+    @Mock
+    private val loginUseCase = mock(classOf<ILoginUseCase>())
     private lateinit var loginViewModel: LoginViewModel
 
     @BeforeTest
     fun setUp() {
-        MockKAnnotations.init(this, relaxUnitFun = true)
         loginViewModel = LoginViewModel(loginUseCase)
     }
 
-    @AfterTest
-    fun tearDown(){
-        unmockkAll()
-    }
     @Test
-    fun invokeLoginUseCase() {
-        coEvery { loginUseCase.invoke(any(),any()) } returns  Result.success(User(1,"###"))
+    fun invokeLoginUseCase()= runTest {
+        coEvery { loginUseCase.invoke(any(),any()) }.returns(Result.success(User(1,"###")))
         loginViewModel.doLogin("###","###")
         coEvery { loginUseCase.invoke(any(),any()) }
     }
