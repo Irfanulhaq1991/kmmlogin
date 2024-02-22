@@ -1,7 +1,7 @@
 package com.irfan.kmmlogin
 
 class UsrRmtDtaSrc(private val api: UsrApi) {
-    fun authntcat(username:String,password:String): Result<UsrRmtDto> {
+  suspend  fun authntcat(username:String,password:String): Result<UsrRmtDto> {
         try {
             val response = api.authntcat(username,password)
             if (response.statusCode == 200) {

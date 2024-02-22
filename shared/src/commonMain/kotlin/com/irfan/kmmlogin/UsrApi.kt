@@ -1,5 +1,5 @@
 package com.irfan.kmmlogin
 
 interface UsrApi {
-    fun authntcat(username:String,password:String):UserRmtRspnseDto
+   suspend fun authntcat(username:String,password:String):UserRmtRspnseDto
 }

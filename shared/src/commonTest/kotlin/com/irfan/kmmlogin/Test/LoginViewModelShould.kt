@@ -5,6 +5,7 @@ import com.irfan.kmmlogin.LoginUseCase
 import com.irfan.kmmlogin.LoginViewModel
 import com.irfan.kmmlogin.User
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.unmockkAll
@@ -32,8 +33,8 @@ class LoginViewModelShould {
     }
     @Test
     fun invokeLoginUseCase() {
-        every { loginUseCase.invoke(any(),any()) } returns  Result.success(User(1,"###"))
+        coEvery { loginUseCase.invoke(any(),any()) } returns  Result.success(User(1,"###"))
         loginViewModel.doLogin("###","###")
-        verify { loginUseCase.invoke(any(),any()) }
+        coEvery { loginUseCase.invoke(any(),any()) }
     }
 }

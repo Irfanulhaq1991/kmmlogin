@@ -37,6 +37,7 @@ kotlin {
             implementation(kotlin("test-common"))
             implementation(kotlin("test-annotations-common"))
          //   implementation("io.mockk:mockk:1.9.3.kotlin12")
+            implementation("app.cash.turbine:turbine:1.0.0")
             implementation("io.mockk:mockk:1.13.9")
             implementation(libs.truthish)
             implementation(libs.kotlinx.coroutines.core)

@@ -7,6 +7,7 @@ import com.irfan.kmmlogin.UsrRmtDtaSrc
 import com.varabyte.truthish.assertThat
 import io.mockk.MockKAnnotations
 import io.mockk.unmockkAll
+import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -24,14 +25,14 @@ class UsrRmtDtaSrcShould {
     }
 
     @Test
-    fun returnSuccess() {
+    fun returnSuccess() = runTest{
         val user = UsrRmtDto("Jams",101)
         val api = getUserApiWith(user,200)
         val result: UsrRmtDto = UsrRmtDtaSrc(api).authntcat("##","##").getOrThrow()
         assertThat(result).isEqualTo(user)
     }
     @Test
-    fun returnError(){
+    fun returnError() = runTest{
         val api = getUserApiWith(null,400)
         UsrRmtDtaSrc(api).authntcat("##","###").onFailure {
             assertThat(it.message == "Not valid user").isTrue()
@@ -39,7 +40,7 @@ class UsrRmtDtaSrcShould {
     }
 
     @Test
-    fun returnNetworkError(){
+    fun returnNetworkError()= runTest{
         val api = getApiWithException()
         UsrRmtDtaSrc(api).authntcat("###","###").onFailure {
             assertThat(it.message == "Network Error").isTrue()
@@ -50,7 +51,7 @@ class UsrRmtDtaSrcShould {
 
     private fun getApiWithException(): UsrApi{
             return object : UsrApi{
-                override fun authntcat(username: String, password: String): UserRmtRspnseDto {
+                override suspend fun authntcat(username: String, password: String): UserRmtRspnseDto {
                     return throw Exception("Network Error") // App own exception classes may be created
                 }
             }
@@ -59,7 +60,7 @@ class UsrRmtDtaSrcShould {
 
     private fun getUserApiWith(usrRmtDto: UsrRmtDto?,statusCode:Int):UsrApi{
         return object : UsrApi{
-            override fun authntcat(username: String, password: String): UserRmtRspnseDto {
+            override suspend fun authntcat(username: String, password: String): UserRmtRspnseDto {
                 return UserRmtRspnseDto(usrRmtDto,statusCode)
             }
 

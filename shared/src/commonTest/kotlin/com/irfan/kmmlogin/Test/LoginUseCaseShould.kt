@@ -4,10 +4,13 @@ import com.irfan.kmmlogin.UsrRepo
 import com.irfan.kmmlogin.LoginUseCase
 import com.irfan.kmmlogin.User
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -29,9 +32,9 @@ class LoginUseCaseShould {
         unmockkAll()
     }
     @Test
-    fun invokeRepository(){
-        every { usrRepo.authntict(any(),any()) } returns Result.success(User(1,"###"))
+    fun invokeRepository()= runTest{
+        coEvery { usrRepo.authntict(any(),any()) } returns Result.success(User(1,"###"))
         loginUseCase("###","###")
-        verify { usrRepo.authntict(any(),any()) }
+        coVerify { usrRepo.authntict(any(),any()) }
     }
 }
