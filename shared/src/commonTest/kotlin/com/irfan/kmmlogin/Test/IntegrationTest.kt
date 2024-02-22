@@ -4,7 +4,8 @@ import com.irfan.kmmlogin.UsrRepo
 import com.irfan.kmmlogin.LoginUseCase
 import com.irfan.kmmlogin.LoginViewModel
 import com.irfan.kmmlogin.LoginViewState
-import com.irfan.kmmlogin.usrRmtDtaSrc
+import com.irfan.kmmlogin.UsrApi
+import com.irfan.kmmlogin.UsrRmtDtaSrc
 import com.varabyte.truthish.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -18,9 +19,15 @@ import kotlin.test.Test
 class IntegrationTest {
 
     private val testScope = TestScope(UnconfinedTestDispatcher());
+    private val usrApiImpl = object :UsrApi{
+        override fun authntcat():Boolean {
+            return true
+        }
+    }
+
     @Test
     fun doLoginTest() = runTest {
-        val usrRmtDtaSrc = usrRmtDtaSrc()
+        val usrRmtDtaSrc = UsrRmtDtaSrc(usrApiImpl)
         val usrRepo = UsrRepo(usrRmtDtaSrc)
         val loginUseCase = LoginUseCase(usrRepo)
         val loginViewModel = LoginViewModel(loginUseCase,testScope)

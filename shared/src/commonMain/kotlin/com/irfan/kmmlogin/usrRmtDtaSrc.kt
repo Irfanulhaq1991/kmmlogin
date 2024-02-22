@@ -1,8 +1,8 @@
 package com.irfan.kmmlogin
 
-class usrRmtDtaSrc {
-    fun authntcat() {
-        TODO("Not yet implemented")
+class UsrRmtDtaSrc(private val  api: UsrApi) {
+    fun authntcat():Boolean {
+       return api.authntcat()
     }
 
 }

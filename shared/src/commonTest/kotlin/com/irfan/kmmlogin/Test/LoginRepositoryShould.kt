@@ -1,7 +1,7 @@
 package com.irfan.kmmlogin.test
 
 import com.irfan.kmmlogin.UsrRepo
-import com.irfan.kmmlogin.usrRmtDtaSrc
+import com.irfan.kmmlogin.UsrRmtDtaSrc
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import io.mockk.unmockkAll
@@ -13,7 +13,8 @@ import kotlin.test.Test
 class LoginRepositoryShould {
 
     @MockK
-    private lateinit var usrRmtDtaSrc: usrRmtDtaSrc
+    private lateinit var usrRmtDtaSrc: UsrRmtDtaSrc
+
     private lateinit var usrRepo: UsrRepo
 
     @BeforeTest
