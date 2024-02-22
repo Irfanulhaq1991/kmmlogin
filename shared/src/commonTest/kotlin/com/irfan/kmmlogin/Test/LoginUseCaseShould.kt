@@ -28,7 +28,7 @@ class LoginUseCaseShould {
     }
     @Test
     fun invokeRepository(){
-        loginUseCase()
-        verify { usrRepo.authntict() }
+        loginUseCase("###","###")
+        verify { usrRepo.authntict(any(),any()) }
     }
 }

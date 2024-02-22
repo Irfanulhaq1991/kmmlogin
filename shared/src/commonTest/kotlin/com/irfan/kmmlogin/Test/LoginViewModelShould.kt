@@ -30,7 +30,7 @@ class LoginViewModelShould {
     }
     @Test
     fun invokeLoginUseCase() {
-        loginViewModel.doLogin()
-        verify { loginUseCase.invoke() }
+        loginViewModel.doLogin("###","###")
+        verify { loginUseCase.invoke(any(),any()) }
     }
 }

@@ -27,13 +27,13 @@ class UsrRmtDtaSrcShould {
     fun returnSuccess() {
         val user = UsrRmtDto("Jams",101)
         val api = getUserApiWith(user,200)
-        val result: UsrRmtDto = UsrRmtDtaSrc(api).authntcat().getOrThrow()
+        val result: UsrRmtDto = UsrRmtDtaSrc(api).authntcat("##","##").getOrThrow()
         assertThat(result).isEqualTo(user)
     }
     @Test
     fun returnError(){
         val api = getUserApiWith(null,400)
-        UsrRmtDtaSrc(api).authntcat().onFailure {
+        UsrRmtDtaSrc(api).authntcat("##","###").onFailure {
             assertThat(it.message == "Not valid user").isTrue()
         }
     }
@@ -41,25 +41,26 @@ class UsrRmtDtaSrcShould {
     @Test
     fun returnNetworkError(){
         val api = getApiWithException()
-        UsrRmtDtaSrc(api).authntcat().onFailure {
+        UsrRmtDtaSrc(api).authntcat("###","###").onFailure {
             assertThat(it.message == "Network Error").isTrue()
         }
     }
 
 
+
     private fun getApiWithException(): UsrApi{
             return object : UsrApi{
-                override fun authntcat(): UserRmtRspnseDto {
+                override fun authntcat(username: String, password: String): UserRmtRspnseDto {
                     return throw Exception("Network Error") // App own exception classes may be created
                 }
-        }
+            }
     }
 
 
     private fun getUserApiWith(usrRmtDto: UsrRmtDto?,statusCode:Int):UsrApi{
         return object : UsrApi{
-            override fun authntcat(): UserRmtRspnseDto {
-               return UserRmtRspnseDto(usrRmtDto,statusCode)
+            override fun authntcat(username: String, password: String): UserRmtRspnseDto {
+                return UserRmtRspnseDto(usrRmtDto,statusCode)
             }
 
         }

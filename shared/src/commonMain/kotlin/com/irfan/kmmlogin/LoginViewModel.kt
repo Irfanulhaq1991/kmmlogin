@@ -20,7 +20,7 @@ class LoginViewModel(
     private val _loginStateFlow = MutableStateFlow(LoginViewState())
     val loginStateFlow: StateFlow<LoginViewState> = _loginStateFlow
 
-    fun doLogin() {
-        loginUseCase.invoke()
+    fun doLogin(userName:String,password:String) {
+        loginUseCase.invoke(userName,password)
     }
 }

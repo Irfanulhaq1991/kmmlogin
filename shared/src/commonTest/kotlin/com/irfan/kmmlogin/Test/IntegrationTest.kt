@@ -4,8 +4,10 @@ import com.irfan.kmmlogin.UsrRepo
 import com.irfan.kmmlogin.LoginUseCase
 import com.irfan.kmmlogin.LoginViewModel
 import com.irfan.kmmlogin.LoginViewState
+import com.irfan.kmmlogin.UserRmtRspnseDto
 import com.irfan.kmmlogin.UsrApi
 import com.irfan.kmmlogin.UsrRmtDtaSrc
+import com.irfan.kmmlogin.UsrRmtDto
 import com.varabyte.truthish.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -20,8 +22,8 @@ class IntegrationTest {
 
     private val testScope = TestScope(UnconfinedTestDispatcher());
     private val usrApiImpl = object :UsrApi{
-        override fun authntcat():Boolean {
-            return true
+        override fun authntcat(username: String, password: String): UserRmtRspnseDto {
+            return UserRmtRspnseDto(UsrRmtDto("",0),200)
         }
     }
 
@@ -33,7 +35,7 @@ class IntegrationTest {
         val loginViewModel = LoginViewModel(loginUseCase,testScope)
         val loginSpy = LoginViewSpy(loginViewModel, testScope)
         loginSpy.create()
-        loginSpy.donLogin()
+        loginSpy.donLogin("###","###")
         val loginViewStates = loginSpy.loginViewStates;
         assertThat(loginViewStates.size).isEqualTo(2)
         assertThat(loginViewStates[1].isLoading).isEqualTo(true)
@@ -53,8 +55,8 @@ class LoginViewSpy(
             }
         }
     }
-  fun donLogin() {
-        loginViewModel.doLogin()
+  fun donLogin(userName:String,password:String) {
+        loginViewModel.doLogin(userName,password)
     }
 }
 

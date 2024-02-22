@@ -1,9 +1,15 @@
 package com.irfan.kmmlogin.test
 
+import com.irfan.kmmlogin.UserRmtRspnseDto
 import com.irfan.kmmlogin.UsrRepo
 import com.irfan.kmmlogin.UsrRmtDtaSrc
-import io.mockk.MockKAnnotations
+import com.irfan.kmmlogin.UsrRmtDto
 import io.mockk.impl.annotations.MockK
+import io.mockk.MockKAnnotations
+import io.mockk.every
+
+
+import io.mockk.runs
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.AfterTest
@@ -30,7 +36,8 @@ class LoginRepositoryShould {
 
     @Test
     fun callRemoteDataSource(){
-        usrRepo.authntict()
-        verify { usrRmtDtaSrc.authntcat() }
+        every { usrRmtDtaSrc.authntcat(any(),any()) } returns Result.success(UsrRmtDto("",200))
+        usrRepo.authntict("###","###")
+        verify { usrRmtDtaSrc.authntcat(any(),any()) }
     }
 }
