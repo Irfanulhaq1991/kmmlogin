@@ -2,7 +2,9 @@ package com.irfan.kmmlogin.test
 
 import com.irfan.kmmlogin.UsrRepo
 import com.irfan.kmmlogin.LoginUseCase
+import com.irfan.kmmlogin.User
 import io.mockk.MockKAnnotations
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.unmockkAll
 import io.mockk.verify
@@ -28,6 +30,7 @@ class LoginUseCaseShould {
     }
     @Test
     fun invokeRepository(){
+        every { usrRepo.authntict(any(),any()) } returns Result.success(User(1,"###"))
         loginUseCase("###","###")
         verify { usrRepo.authntict(any(),any()) }
     }
