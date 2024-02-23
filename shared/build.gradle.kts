@@ -2,8 +2,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinCocoapods)
     alias(libs.plugins.androidLibrary)
-    id("com.google.devtools.ksp") version "1.9.21-1.0.15"
-
+    alias(libs.plugins.compose)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
@@ -33,6 +33,14 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
+
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material)
+            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+            implementation(compose.components.resources)
+
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -55,6 +63,8 @@ dependencies {
 android {
     namespace = "com.irfan.kmmlogin"
     compileSdk = 34
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+
     defaultConfig {
         minSdk = 24
     }
