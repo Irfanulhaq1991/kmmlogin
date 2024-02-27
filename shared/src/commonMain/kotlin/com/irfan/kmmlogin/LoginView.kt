@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
@@ -35,7 +34,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.irfan.composeexploration.ui.theme.theme3.MyAppTheme
+import com.irfan.composeexploration.ui.theme.theme3.AppTheme
 import kotlinx.coroutines.launch
 import   androidx.compose.material3.*
 
@@ -45,12 +44,14 @@ fun LoginScreen() {
     var password by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {contentPadding->
+    val snackBarHostState = remember { SnackbarHostState() }
+
+   AppTheme {
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) {contentPadding->
 
         ConstraintLayout(
             modifier = Modifier
-                .background(MyAppTheme.colors.background)
+                .background(AppTheme.colors.background)
                 .scrollable(rememberScrollState(), Orientation.Vertical)
                 .fillMaxWidth()
                 .fillMaxHeight()
@@ -63,7 +64,7 @@ fun LoginScreen() {
                 Icons.Default.Lock,
 
                 contentDescription = "...",
-                tint = MyAppTheme.colors.secondary,
+                tint = AppTheme.colors.secondary,
                 modifier = Modifier
                     .size(100.dp)
                     .constrainAs(refLogoIcon) {
@@ -75,11 +76,11 @@ fun LoginScreen() {
             )
             Text(
                 text = "LOGIN",
-                style = MyAppTheme.typography.label
+                style = AppTheme.typography.label
                     .copy(
                         fontSize = 25.sp,
                         letterSpacing = 5.sp,
-                        color = MyAppTheme.colors.text
+                        color = AppTheme.colors.text
                     ),
                 modifier = Modifier.constrainAs(refLogoText) {
                     end.linkTo(parent.end)
@@ -94,7 +95,7 @@ fun LoginScreen() {
                     .fillMaxWidth()
                     .border(
                         width = 1.dp,
-                        color = MyAppTheme.colors.secondary,
+                        color = AppTheme.colors.secondary,
                         shape = RoundedCornerShape(25.dp)
                     )
                     .constrainAs(refUsername) {
@@ -107,16 +108,16 @@ fun LoginScreen() {
                 placeholder = {
                     Text(
                         "Enter User Name",
-                        style = MyAppTheme.typography.body.copy(color = MyAppTheme.colors.text)
+                        style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
                     )
                 },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.Transparent,
                     unfocusedBorderColor = Color.Transparent,
-                    focusedLabelColor = MyAppTheme.colors.secondary,
-                    cursorColor = MyAppTheme.colors.secondary
+                    focusedLabelColor = AppTheme.colors.secondary,
+                    cursorColor = AppTheme.colors.secondary
                 ),
-                textStyle = MyAppTheme.typography.body.copy(color = MyAppTheme.colors.text)
+                textStyle = AppTheme.typography.body.copy(color = AppTheme.colors.text)
             )
 
           OutlinedTextField(
@@ -125,7 +126,7 @@ fun LoginScreen() {
                     .fillMaxWidth()
                     .border(
                         width = 1.dp,
-                        color = MyAppTheme.colors.secondary,
+                        color = AppTheme.colors.secondary,
                         shape = RoundedCornerShape(25.dp)
                     )
                     .constrainAs(refPassword) {
@@ -138,7 +139,7 @@ fun LoginScreen() {
                 placeholder = {
                     Text(
                         "Enter Password",
-                        style = MyAppTheme.typography.body.copy(color = MyAppTheme.colors.text)
+                        style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
                     )
 
                 },
@@ -146,10 +147,10 @@ fun LoginScreen() {
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.Transparent,
                     unfocusedBorderColor = Color.Transparent,
-                    focusedLabelColor = MyAppTheme.colors.secondary,
-                    cursorColor = MyAppTheme.colors.secondary
+                    focusedLabelColor = AppTheme.colors.secondary,
+                    cursorColor = AppTheme.colors.secondary
                 ),
-                textStyle = MyAppTheme.typography.body.copy(color = MyAppTheme.colors.text)
+                textStyle = AppTheme.typography.body.copy(color = AppTheme.colors.text)
 
             )
 
@@ -164,16 +165,16 @@ fun LoginScreen() {
                 onCheckedChange = { rememberMe = it },
                 colors = SwitchDefaults.colors(
                     uncheckedTrackColor = Color.Transparent,
-                    uncheckedThumbColor = MyAppTheme.colors.primary,
-                    uncheckedBorderColor = MyAppTheme.colors.secondary,
-                    checkedThumbColor = MyAppTheme.colors.secondary,
-                    checkedTrackColor = MyAppTheme.colors.primary,
-                    checkedBorderColor = MyAppTheme.colors.secondary
+                    uncheckedThumbColor = AppTheme.colors.primary,
+                    uncheckedBorderColor = AppTheme.colors.secondary,
+                    checkedThumbColor = AppTheme.colors.secondary,
+                    checkedTrackColor = AppTheme.colors.primary,
+                    checkedBorderColor = AppTheme.colors.secondary
                 )
             )
             Text(
                 text = "Remember me",
-                style = MyAppTheme.typography.label.copy(MyAppTheme.colors.text),
+                style = AppTheme.typography.label.copy(AppTheme.colors.text),
                 modifier = Modifier
                     .padding(start = 15.dp, end = 5.dp)
                     .constrainAs(refSwitchText) {
@@ -192,7 +193,7 @@ fun LoginScreen() {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
-                colors = ButtonDefaults.buttonColors(containerColor = MyAppTheme.colors.secondary),
+                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
                 onClick = {
 
                 }
@@ -200,13 +201,13 @@ fun LoginScreen() {
             ) {
                 Text(
                     text = "Login",
-                    style = MyAppTheme.typography.label.copy(color = MyAppTheme.colors.text)
+                    style = AppTheme.typography.label.copy(color = AppTheme.colors.text)
                 )
             }
 
 
             Text("Click here to register",
-                style = MyAppTheme.typography.body.copy(color = MyAppTheme.colors.text),
+                style = AppTheme.typography.body.copy(color = AppTheme.colors.text),
                 modifier = Modifier
                     .constrainAs(refRegisterText) {
                         bottom.linkTo(parent.bottom, 5.dp)
@@ -215,12 +216,12 @@ fun LoginScreen() {
                     }
                     .clickable {
                         scope.launch {
-                            snackbarHostState.showSnackbar("Register Not implemented")
+                            snackBarHostState.showSnackbar("Register Not implemented")
                         }
 
                     })
         }
     }
-
+   }
 }
 
