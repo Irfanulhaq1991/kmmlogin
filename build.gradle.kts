@@ -8,3 +8,7 @@ plugins {
     alias(libs.plugins.compose).apply(false)
 
 }
+
+extra.apply {
+    set("jvmTarget", "11")
+}

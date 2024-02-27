@@ -8,9 +8,19 @@ plugins {
 
 kotlin {
     androidTarget {
+//
+
         compilations.all {
             kotlinOptions {
-                jvmTarget = "1.8"
+                jvmTarget = rootProject.extra.get("jvmTarget") as String
+            }
+        }
+
+        jvm {
+            compilations.all {
+                kotlinOptions {
+                    jvmTarget = rootProject.extra.get("jvmTarget") as String
+                }
             }
         }
     }
@@ -37,8 +47,10 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material)
+            implementation(compose.material3)
             @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
+            implementation("tech.annexflow.compose:constraintlayout-compose-multiplatform:0.2.3")
 
 
         }
@@ -64,7 +76,10 @@ android {
     namespace = "com.irfan.kmmlogin"
     compileSdk = 34
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-
+    compileOptions {
+        sourceCompatibility = JavaVersion.toVersion(rootProject.extra.get("jvmTarget") as String)
+        targetCompatibility = JavaVersion.toVersion(rootProject.extra.get("jvmTarget") as String)
+    }
     defaultConfig {
         minSdk = 24
     }
