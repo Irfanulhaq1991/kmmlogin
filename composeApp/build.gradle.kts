@@ -68,7 +68,7 @@ dependencies {
 
 
 android {
-    namespace = "org.irfan.kmm_exp"
+    namespace = "org.irfan.kmm_login"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
