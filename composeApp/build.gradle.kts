@@ -43,16 +43,19 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.constraintlayout.compose.multiplatform)
             api(libs.precompose.viewmodel)
+            implementation( libs.koin.core)
 
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(kotlin("test-common"))
             implementation(kotlin("test-annotations-common"))
-            implementation("io.mockative:mockative:2.0.1")
+            implementation(libs.mockative)
             implementation(libs.truthish)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.koin.test)
+
         }
 
 

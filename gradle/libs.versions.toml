@@ -14,8 +14,10 @@ compose = "1.6.2"
 compose-plugin = "1.6.0"
 constraintlayoutComposeMultiplatform = "0.2.3"
 junit = "4.13.2"
+koinTest = "3.2.0"
 kotlin = "1.9.22"
 kotlinxCoroutinesCore = "1.8.0-RC2"
+mockative = "2.0.1"
 precomposeViewmodel = "1.6.0-rc02"
 truthish = "0.6.5"
 ksp = "1.9.22-1.0.16"
@@ -23,6 +25,8 @@ ksp = "1.9.22-1.0.16"
 
 [libraries]
 constraintlayout-compose-multiplatform = { module = "tech.annexflow.compose:constraintlayout-compose-multiplatform", version.ref = "constraintlayoutComposeMultiplatform" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinTest" }
+koin-test = { module = "io.insert-koin:koin-test", version.ref = "koinTest" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -37,6 +41,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = 
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesCore" }
+mockative = { module = "io.mockative:mockative", version.ref = "mockative" }
 precompose-viewmodel = { module = "moe.tlaster:precompose-viewmodel", version.ref = "precomposeViewmodel" }
 truthish = { module = "com.varabyte.truthish:truthish", version.ref = "truthish" }
 

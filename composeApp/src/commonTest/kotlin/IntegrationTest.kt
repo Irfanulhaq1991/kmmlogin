@@ -31,7 +31,7 @@ class IntegrationTest {
     private var loginUseCase = LoginUseCase(usrRepo)
     private var loginViewModel = LoginViewModel(loginUseCase)
 
-    private var testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
+    private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
     private var testScope = TestScope(testDispatcher);
     private var loginSpy = LoginViewSpy(3, loginViewModel, testScope)
 

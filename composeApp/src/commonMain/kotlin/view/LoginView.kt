@@ -48,182 +48,183 @@ fun LoginScreen() {
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    AppTheme {
-        Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { contentPadding ->
 
-            ConstraintLayout(
+
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { contentPadding ->
+
+        ConstraintLayout(
+            modifier = Modifier
+                .background(AppTheme.colors.background)
+                .scrollable(rememberScrollState(), Orientation.Vertical)
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(15.dp)
+        ) {
+
+            val (refLogoIcon, refLogoText, refUsername, refPassword, refSwitch, refSwitchText, refLoginBtn, refRegisterText, refRegisterAction) = createRefs()
+            val topGuideline = createGuidelineFromTop(0.45f)
+            Icon(
+                Icons.Default.Lock,
+
+                contentDescription = "...",
+                tint = AppTheme.colors.secondary,
                 modifier = Modifier
-                    .background(AppTheme.colors.background)
-                    .scrollable(rememberScrollState(), Orientation.Vertical)
+                    .size(100.dp)
+                    .constrainAs(refLogoIcon) {
+                        bottom.linkTo(refLogoText.top, 10.dp)
+                        end.linkTo(refLogoText.end)
+                        start.linkTo(refLogoText.start)
+
+                    }
+            )
+            Text(
+                text = "LOGIN",
+                style = AppTheme.typography.label
+                    .copy(
+                        fontSize = 25.sp,
+                        letterSpacing = 5.sp,
+                        color = AppTheme.colors.text
+                    ),
+                modifier = Modifier.constrainAs(refLogoText) {
+                    end.linkTo(parent.end)
+                    start.linkTo(parent.start)
+                    bottom.linkTo(topGuideline, 80.dp)
+                }
+            )
+            OutlinedTextField(
+
+                modifier = Modifier
+                    .testTag("userName")
                     .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(15.dp)
-            ) {
-
-                val (refLogoIcon, refLogoText, refUsername, refPassword, refSwitch, refSwitchText, refLoginBtn, refRegisterText, refRegisterAction) = createRefs()
-                val topGuideline = createGuidelineFromTop(0.45f)
-                Icon(
-                    Icons.Default.Lock,
-
-                    contentDescription = "...",
-                    tint = AppTheme.colors.secondary,
-                    modifier = Modifier
-                        .size(100.dp)
-                        .constrainAs(refLogoIcon) {
-                            bottom.linkTo(refLogoText.top, 10.dp)
-                            end.linkTo(refLogoText.end)
-                            start.linkTo(refLogoText.start)
-
-                        }
-                )
-                Text(
-                    text = "LOGIN",
-                    style = AppTheme.typography.label
-                        .copy(
-                            fontSize = 25.sp,
-                            letterSpacing = 5.sp,
-                            color = AppTheme.colors.text
-                        ),
-                    modifier = Modifier.constrainAs(refLogoText) {
-                        end.linkTo(parent.end)
+                    .border(
+                        width = 1.dp,
+                        color = AppTheme.colors.secondary,
+                        shape = RoundedCornerShape(25.dp)
+                    )
+                    .constrainAs(refUsername) {
+                        top.linkTo(topGuideline)
                         start.linkTo(parent.start)
-                        bottom.linkTo(topGuideline, 80.dp)
-                    }
-                )
-                OutlinedTextField(
-
-                    modifier = Modifier
-                        .testTag("userName")
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = AppTheme.colors.secondary,
-                            shape = RoundedCornerShape(25.dp)
-                        )
-                        .constrainAs(refUsername) {
-                            top.linkTo(topGuideline)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        },
-                    value = userName,
-                    onValueChange = { userName = it },
-                    placeholder = {
-                        Text(
-                            "Enter usecase.User Name",
-                            style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
-                        )
+                        end.linkTo(parent.end)
                     },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedLabelColor = AppTheme.colors.secondary,
-                        cursorColor = AppTheme.colors.secondary
-                    ),
-                    textStyle = AppTheme.typography.body.copy(color = AppTheme.colors.text)
-                )
-
-                OutlinedTextField(
-                    modifier = Modifier
-                        .testTag("password")
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = AppTheme.colors.secondary,
-                            shape = RoundedCornerShape(25.dp)
-                        )
-                        .constrainAs(refPassword) {
-                            top.linkTo(refUsername.bottom, 10.dp)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        },
-                    value = password,
-                    onValueChange = { password = it },
-                    placeholder = {
-                        Text(
-                            "Enter Password",
-                            style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
-                        )
-
-                    },
-                    visualTransformation = PasswordVisualTransformation(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent,
-                        focusedLabelColor = AppTheme.colors.secondary,
-                        cursorColor = AppTheme.colors.secondary
-                    ),
-                    textStyle = AppTheme.typography.body.copy(color = AppTheme.colors.text)
-
-                )
-
-                Switch(
-                    checked = rememberMe,
-                    modifier = Modifier
-                        .padding(start = 2.dp, top = 5.dp)
-                        .constrainAs(refSwitch) {
-                            top.linkTo(refPassword.bottom, 10.dp)
-                            start.linkTo(refPassword.start, 10.dp)
-                        },
-                    onCheckedChange = { rememberMe = it },
-                    colors = SwitchDefaults.colors(
-                        uncheckedTrackColor = Color.Transparent,
-                        uncheckedThumbColor = AppTheme.colors.primary,
-                        uncheckedBorderColor = AppTheme.colors.secondary,
-                        checkedThumbColor = AppTheme.colors.secondary,
-                        checkedTrackColor = AppTheme.colors.primary,
-                        checkedBorderColor = AppTheme.colors.secondary
-                    )
-                )
-                Text(
-                    text = "Remember me",
-                    style = AppTheme.typography.label.copy(AppTheme.colors.text),
-                    modifier = Modifier
-                        .padding(start = 15.dp, end = 5.dp)
-                        .constrainAs(refSwitchText) {
-                            start.linkTo(refSwitch.end)
-                            top.linkTo(refSwitch.top)
-                            bottom.linkTo(refSwitch.bottom)
-                        }
-                )
-
-                Button(
-                    modifier = Modifier
-                        .testTag("doLogin")
-                        .fillMaxWidth(0.5f)
-                        .constrainAs(refLoginBtn) {
-                            top.linkTo(refSwitch.bottom, 30.dp)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        },
-                    colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
-                    onClick = {
-
-                    }
-
-                ) {
+                value = userName,
+                onValueChange = { userName = it },
+                placeholder = {
                     Text(
-                        text = "Login",
-                        style = AppTheme.typography.label.copy(color = AppTheme.colors.text)
+                        "Enter usecase.User Name",
+                        style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
                     )
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedLabelColor = AppTheme.colors.secondary,
+                    cursorColor = AppTheme.colors.secondary
+                ),
+                textStyle = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+            )
+
+            OutlinedTextField(
+                modifier = Modifier
+                    .testTag("password")
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = AppTheme.colors.secondary,
+                        shape = RoundedCornerShape(25.dp)
+                    )
+                    .constrainAs(refPassword) {
+                        top.linkTo(refUsername.bottom, 10.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                value = password,
+                onValueChange = { password = it },
+                placeholder = {
+                    Text(
+                        "Enter Password",
+                        style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+                    )
+
+                },
+                visualTransformation = PasswordVisualTransformation(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedLabelColor = AppTheme.colors.secondary,
+                    cursorColor = AppTheme.colors.secondary
+                ),
+                textStyle = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+
+            )
+
+            Switch(
+                checked = rememberMe,
+                modifier = Modifier
+                    .padding(start = 2.dp, top = 5.dp)
+                    .constrainAs(refSwitch) {
+                        top.linkTo(refPassword.bottom, 10.dp)
+                        start.linkTo(refPassword.start, 10.dp)
+                    },
+                onCheckedChange = { rememberMe = it },
+                colors = SwitchDefaults.colors(
+                    uncheckedTrackColor = Color.Transparent,
+                    uncheckedThumbColor = AppTheme.colors.primary,
+                    uncheckedBorderColor = AppTheme.colors.secondary,
+                    checkedThumbColor = AppTheme.colors.secondary,
+                    checkedTrackColor = AppTheme.colors.primary,
+                    checkedBorderColor = AppTheme.colors.secondary
+                )
+            )
+            Text(
+                text = "Remember me",
+                style = AppTheme.typography.label.copy(AppTheme.colors.text),
+                modifier = Modifier
+                    .padding(start = 15.dp, end = 5.dp)
+                    .constrainAs(refSwitchText) {
+                        start.linkTo(refSwitch.end)
+                        top.linkTo(refSwitch.top)
+                        bottom.linkTo(refSwitch.bottom)
+                    }
+            )
+
+            Button(
+                modifier = Modifier
+                    .testTag("doLogin")
+                    .fillMaxWidth(0.5f)
+                    .constrainAs(refLoginBtn) {
+                        top.linkTo(refSwitch.bottom, 30.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
+                onClick = {
+
                 }
 
-
-                Text("Click here to register",
-                    style = AppTheme.typography.body.copy(color = AppTheme.colors.text),
-                    modifier = Modifier
-                        .constrainAs(refRegisterText) {
-                            bottom.linkTo(parent.bottom, 5.dp)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        }
-                        .clickable {
-                            scope.launch {
-                                snackBarHostState.showSnackbar("Register Not implemented")
-                            }
-
-                        })
+            ) {
+                Text(
+                    text = "Login",
+                    style = AppTheme.typography.label.copy(color = AppTheme.colors.text)
+                )
             }
+
+
+            Text("Click here to register",
+                style = AppTheme.typography.body.copy(color = AppTheme.colors.text),
+                modifier = Modifier
+                    .constrainAs(refRegisterText) {
+                        bottom.linkTo(parent.bottom, 5.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+                    .clickable {
+                        scope.launch {
+                            snackBarHostState.showSnackbar("Register Not implemented")
+                        }
+
+                    })
         }
     }
+
 }
 
