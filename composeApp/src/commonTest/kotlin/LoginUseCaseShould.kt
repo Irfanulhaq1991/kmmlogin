@@ -1,4 +1,5 @@
 
+import data.IUserRepository
 import io.mockative.Mock
 import io.mockative.any
 import io.mockative.classOf
@@ -6,12 +7,14 @@ import io.mockative.coEvery
 import io.mockative.coVerify
 import io.mockative.mock
 import kotlinx.coroutines.test.runTest
+import usecase.LoginUseCase
+import usecase.User
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 class LoginUseCaseShould {
 
-    private lateinit var loginUseCase:LoginUseCase
+    private lateinit var loginUseCase: LoginUseCase
     @Mock
     private val usrRepo =  mock(classOf<IUserRepository>())
     @BeforeTest

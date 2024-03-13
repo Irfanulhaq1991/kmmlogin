@@ -41,7 +41,8 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.kotlinx.coroutines.core)
-            implementation("tech.annexflow.compose:constraintlayout-compose-multiplatform:0.2.3")
+            implementation(libs.constraintlayout.compose.multiplatform)
+            api(libs.precompose.viewmodel)
 
         }
         commonTest.dependencies {

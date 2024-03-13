@@ -1,8 +1,10 @@
+package data.remote
 
+import usecase.User
 
 data class UserRemoteDto(val name:String, val id:Int){
-    fun toUser():User{
-        return User(id,name)
+    fun toUser(): User {
+        return User(id, name)
     }
 }
 

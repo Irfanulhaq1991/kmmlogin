@@ -1,3 +1,6 @@
+package view
+
+import usecase.User
 
 data class LoginViewState(
     val isLoading: Boolean = false,

@@ -5,7 +5,9 @@ import io.mockative.classOf
 import io.mockative.coEvery
 import io.mockative.mock
 import kotlinx.coroutines.test.runTest
-import kotlin.test.AfterTest
+import usecase.ILoginUseCase
+import usecase.User
+import view.LoginViewModel
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 

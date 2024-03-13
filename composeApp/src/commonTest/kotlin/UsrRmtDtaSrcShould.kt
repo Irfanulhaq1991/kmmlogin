@@ -1,5 +1,9 @@
 
 import com.varabyte.truthish.assertThat
+import data.remote.UserRemoteDataSource
+import data.remote.UserRemoteDto
+import data.remote.UserRemoteRspnseDto
+import data.remote.UsrApi
 
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -31,8 +35,8 @@ class UsrRmtDtaSrcShould{
 
 
 
-    private fun getApiWithException(): UsrApi{
-            return object : UsrApi{
+    private fun getApiWithException(): UsrApi {
+            return object : UsrApi {
                 override suspend fun authntcat(username: String, password: String): UserRemoteRspnseDto {
                     return throw Exception("Network Error") // App own exception classes may be created
                 }
@@ -40,8 +44,8 @@ class UsrRmtDtaSrcShould{
     }
 
 
-    private fun getUserApiWith(userRemoteDto: UserRemoteDto?, statusCode:Int):UsrApi{
-        return object : UsrApi{
+    private fun getUserApiWith(userRemoteDto: UserRemoteDto?, statusCode:Int): UsrApi {
+        return object : UsrApi {
             override suspend fun authntcat(username: String, password: String): UserRemoteRspnseDto {
                 return UserRemoteRspnseDto(userRemoteDto,statusCode)
             }

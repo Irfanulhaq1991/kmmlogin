@@ -1,10 +1,14 @@
 import com.varabyte.truthish.assertThat
+import data.remote.IUserRemoteDataSource
+import data.remote.UserRemoteDto
+import data.UserRepository
 import io.mockative.Mock
 import io.mockative.any
 import io.mockative.classOf
 import io.mockative.coEvery
 import io.mockative.mock
 import kotlinx.coroutines.test.runTest
+import usecase.User
 import kotlin.test.BeforeTest
 
 import kotlin.test.Test
@@ -24,7 +28,8 @@ class LoginRepositoryShould{
     @Test
     fun callRemoteDataSource()= runTest{
         coEvery{ userRemoteDataSource.authenticate(any(),any()) }.returns( Result.success(
-            UserRemoteDto("",200)))
+            UserRemoteDto("",200)
+        ))
         usrRepo.authenticate("###","###")
         coEvery { userRemoteDataSource.authenticate(any(),any())}
     }

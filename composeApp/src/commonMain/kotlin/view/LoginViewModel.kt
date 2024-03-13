@@ -1,4 +1,4 @@
-
+package view
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -6,11 +6,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import moe.tlaster.precompose.viewmodel.ViewModel
+import moe.tlaster.precompose.viewmodel.viewModelScope
+import usecase.ILoginUseCase
 
 class LoginViewModel(
     private val loginUseCase: ILoginUseCase,
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default + Job())
-) {
+):ViewModel() {
     private var  job: Job = Job()
     private val _loginStateFlow = MutableStateFlow(LoginViewState())
     val loginStateFlow: StateFlow<LoginViewState> = _loginStateFlow
@@ -18,7 +20,7 @@ class LoginViewModel(
     fun doLogin(userName:String,password:String) {
         job.cancel()
         _loginStateFlow.update { it.copy(isLoading = true) }
-        job =  scope.launch {
+        job =  viewModelScope.launch {
                    loginUseCase.invoke(userName,password)
                .fold(
                    {_loginStateFlow.update { state-> state.copy(isLoading = false,isError = false, user = it) } },

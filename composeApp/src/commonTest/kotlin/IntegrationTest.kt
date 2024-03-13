@@ -1,37 +1,58 @@
 import com.varabyte.truthish.assertThat
+import data.remote.UserRemoteDataSource
+import data.remote.UserRemoteDto
+import data.remote.UserRemoteRspnseDto
+import data.UserRepository
+import data.remote.UsrApi
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import usecase.LoginUseCase
+import view.LoginViewModel
+import view.LoginViewState
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class IntegrationTest {
+    private val successUserApi = FakeSuccessApi()
+    private val errorUserApi = FakeErrorApi()
 
-    private val testScope = TestScope(UnconfinedTestDispatcher());
-    private val successUserApi = object :UsrApi{
-        override suspend fun authntcat(username: String, password: String): UserRemoteRspnseDto {
-            return UserRemoteRspnseDto(UserRemoteDto("###",0),200)
-        }
+    private var userRemoteDataSource = UserRemoteDataSource(successUserApi)
+    private var usrRepo = UserRepository(userRemoteDataSource)
+    private var loginUseCase = LoginUseCase(usrRepo)
+    private var loginViewModel = LoginViewModel(loginUseCase)
+
+    private var testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
+    private var testScope = TestScope(testDispatcher);
+    private var loginSpy = LoginViewSpy(3, loginViewModel, testScope)
+
+
+
+    @BeforeTest
+    fun setup() {
+        loginSpy.create()
+        Dispatchers.setMain(testDispatcher)
     }
 
-    private val errorUserApi = object :UsrApi{
-        override suspend fun authntcat(username: String, password: String): UserRemoteRspnseDto {
-            return throw Exception("No Network")
-        }
+    @AfterTest
+    fun tear() {
+        Dispatchers.resetMain()
+        loginSpy.destroy()
     }
+
 
     @Test
     fun successLoginTest() = runTest {
-        val userRemoteDataSource = UserRemoteDataSource(successUserApi)
-        val usrRepo = UserRepository(userRemoteDataSource)
-        val loginUseCase = LoginUseCase(usrRepo)
-        val loginViewModel = LoginViewModel(loginUseCase,testScope)
-        val loginSpy = LoginViewSpy(3, loginViewModel, testScope)
-        loginSpy.create()
-        loginSpy.donLogin("###","###")
+        loginSpy.donLogin("###", "###")
         val loginViewStates = loginSpy.loginViewStates;
         assertThat(loginViewStates.size).isEqualTo(3)
         assertThat(loginViewStates[0].isLoading).isEqualTo(false)
@@ -40,15 +61,16 @@ class IntegrationTest {
         assertThat(loginViewStates[2].isLoading).isFalse()
         assertThat(loginViewStates[2].user).isNotNull()
     }
+
     @Test
     fun errorLoginTest() = runTest {
-        val userRemoteDataSource = UserRemoteDataSource(errorUserApi)
-        val usrRepo = UserRepository(userRemoteDataSource)
-        val loginUseCase = LoginUseCase(usrRepo)
-        val loginViewModel = LoginViewModel(loginUseCase,testScope)
-        val loginSpy = LoginViewSpy(3, loginViewModel, testScope)
+        userRemoteDataSource = UserRemoteDataSource(errorUserApi)
+         usrRepo = UserRepository(userRemoteDataSource)
+         loginUseCase = LoginUseCase(usrRepo)
+         loginViewModel = LoginViewModel(loginUseCase)
+        loginSpy = LoginViewSpy(3, loginViewModel, testScope)
         loginSpy.create()
-        loginSpy.donLogin("###","###")
+        loginSpy.donLogin("###", "###")
         val loginViewStates = loginSpy.loginViewStates;
         assertThat(loginViewStates.size).isEqualTo(3)
         assertThat(loginViewStates[0].isLoading).isEqualTo(false)
@@ -61,13 +83,7 @@ class IntegrationTest {
 
     @Test
     fun loginOldStateRetainTest() = runTest {
-        val userRemoteDataSource = UserRemoteDataSource(successUserApi)
-        val usrRepo = UserRepository(userRemoteDataSource)
-        val loginUseCase = LoginUseCase(usrRepo)
-        val loginViewModel = LoginViewModel(loginUseCase,testScope)
-        val loginSpy = LoginViewSpy(3, loginViewModel, testScope)
-        loginSpy.create()
-        loginSpy.donLogin("###","###")
+        loginSpy.donLogin("###", "###")
         val loginViewStates = loginSpy.loginViewStates
 
         assertThat(loginViewStates.size).isEqualTo(3)
@@ -79,7 +95,7 @@ class IntegrationTest {
 
         loginSpy.loginViewStates.clear()
         loginSpy.setCount(2)
-        loginSpy.donLogin("###","###")
+        loginSpy.donLogin("###", "###")
         val loginViewStates2 = loginSpy.loginViewStates;
 
         assertThat(loginViewStates2.size).isEqualTo(2)
@@ -91,17 +107,19 @@ class IntegrationTest {
     }
 }
 
+// Test Doubles
 class LoginViewSpy(
-    private var statCount:Int = 0,
+    private var statCount: Int = 0,
     private val loginViewModel: LoginViewModel,
     private val scope: CoroutineScope
 ) {
     val loginViewStates = mutableListOf<LoginViewState>()
-   private var countDownLatch = CountDownLatch(statCount);
-   fun setCount(count:Int){
-       countDownLatch = CountDownLatch(count);
+    private var countDownLatch = CountDownLatch(statCount);
+    fun setCount(count: Int) {
+        countDownLatch = CountDownLatch(count);
 
-   }
+    }
+
     fun create() {
         scope.launch {
             loginViewModel.loginStateFlow.collect {
@@ -110,10 +128,27 @@ class LoginViewSpy(
             }
         }
     }
-  suspend fun donLogin(userName:String, password:String) {
-        loginViewModel.doLogin(userName,password)
-      countDownLatch.await()
+   fun destroy(){
+       loginViewStates.clear()
+   }
+
+    suspend fun donLogin(userName: String, password: String) {
+        loginViewModel.doLogin(userName, password)
+        countDownLatch.await()
     }
 }
 
+
+
+class FakeSuccessApi : UsrApi {
+    override suspend fun authntcat(username: String, password: String): UserRemoteRspnseDto {
+        return UserRemoteRspnseDto(UserRemoteDto("###", 0), 200)
+    }
+}
+
+class FakeErrorApi:  UsrApi {
+    override suspend fun authntcat(username: String, password: String): UserRemoteRspnseDto {
+        return throw Exception("No Network")
+    }
+}
 
