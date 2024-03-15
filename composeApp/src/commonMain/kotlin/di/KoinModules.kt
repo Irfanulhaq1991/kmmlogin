@@ -7,24 +7,28 @@ import data.remote.UserRemoteDataSource
 import data.remote.UserRemoteDto
 import data.remote.UserRemoteRspnseDto
 import data.remote.UsrApi
-import moe.tlaster.precompose.viewmodel.ViewModel
-import org.koin.core.module.Module
+import kotlinx.coroutines.delay
 import org.koin.dsl.module
-import usecase.ILoginUseCase
-import usecase.LoginUseCase
-import view.LoginViewModel
+import domain.usecase.ILoginUseCase
+import domain.usecase.LoginUseCase
+import view.login.LoginViewModel
 
 val mainModule = module {
     factory<UsrApi> { FakApi() }
     factory<IUserRemoteDataSource> { UserRemoteDataSource(get()) }
     factory<IUserRepository> { UserRepository(get()) }
     factory<ILoginUseCase> { LoginUseCase(get()) }
-    factory { LoginViewModel(get()) }
+    factory {
+        LoginViewModel(get())
+    }
+
 }
 
 
 class FakApi : UsrApi {
     override suspend fun authntcat(username: String, password: String): UserRemoteRspnseDto {
+        if (username.isEmpty() || password.isEmpty()) throw IllegalArgumentException("username and password are required fields")
+        delay(2000)
         return UserRemoteRspnseDto(UserRemoteDto("###", 0), 200)
     }
 

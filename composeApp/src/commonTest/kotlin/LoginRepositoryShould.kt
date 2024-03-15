@@ -8,7 +8,7 @@ import io.mockative.classOf
 import io.mockative.coEvery
 import io.mockative.mock
 import kotlinx.coroutines.test.runTest
-import usecase.User
+import domain.model.User
 import kotlin.test.BeforeTest
 
 import kotlin.test.Test

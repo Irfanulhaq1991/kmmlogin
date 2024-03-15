@@ -1,6 +1,6 @@
 package data.remote
 
-import usecase.User
+import domain.model.User
 
 data class UserRemoteDto(val name:String, val id:Int){
     fun toUser(): User {

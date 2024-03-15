@@ -1,6 +1,6 @@
 package data
 import data.remote.IUserRemoteDataSource
-import usecase.User
+import domain.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext

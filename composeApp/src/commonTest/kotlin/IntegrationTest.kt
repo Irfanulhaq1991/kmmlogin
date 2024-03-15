@@ -14,9 +14,9 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import usecase.LoginUseCase
-import view.LoginViewModel
-import view.LoginViewState
+import domain.usecase.LoginUseCase
+import view.login.LoginViewModel
+import view.login.LoginViewState
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test

@@ -35,6 +35,7 @@ kotlin {
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
+            implementation(compose.animation)
             implementation(compose.material)
             implementation(compose.material3)
             implementation(compose.ui)
@@ -42,8 +43,11 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.constraintlayout.compose.multiplatform)
-            api(libs.precompose.viewmodel)
             implementation( libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.precompose)
+            implementation(libs.precompose.viewmodel)
+            implementation(libs.precompose.koin)
 
         }
         commonTest.dependencies {
@@ -95,6 +99,12 @@ android {
         getByName("release") {
             isMinifyEnabled = false
         }
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.8"
+    }
+    buildFeatures {
+        compose = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

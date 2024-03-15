@@ -1,6 +1,4 @@
-package view
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+package view.login
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -8,7 +6,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.viewmodel.ViewModel
 import moe.tlaster.precompose.viewmodel.viewModelScope
-import usecase.ILoginUseCase
+import domain.usecase.ILoginUseCase
 
 class LoginViewModel(
     private val loginUseCase: ILoginUseCase,
@@ -23,9 +21,13 @@ class LoginViewModel(
         job =  viewModelScope.launch {
                    loginUseCase.invoke(userName,password)
                .fold(
-                   {_loginStateFlow.update { state-> state.copy(isLoading = false,isError = false, user = it) } },
-                   {_loginStateFlow.update {stat -> stat.copy(isLoading = false,isError = true, message = it.message?:"") }
-                   })
+                   {_loginStateFlow.update { state-> state.copy(isLoading = false, user = it) } },
+                   {_loginStateFlow.update {stat -> stat.copy(isLoading = false,isError = true, message = it.message?:"") } }
+               )
        }
+    }
+
+    fun errorMessageDisplayed(){
+        _loginStateFlow.update { it.copy(isLoading = false, message = "", isError = false) }
     }
 }

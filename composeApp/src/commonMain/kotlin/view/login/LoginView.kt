@@ -1,4 +1,4 @@
-package view
+package view.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
@@ -18,10 +19,16 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,11 +43,13 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.irfan.composeexploration.ui.theme.theme3.AppTheme
 import kotlinx.coroutines.launch
-import   androidx.compose.material3.*
-import moe.tlaster.precompose.viewmodel.viewModel
+import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
+import moe.tlaster.precompose.koin.koinViewModel
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-fun LoginScreen() {
+fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class)) {
+
 
     var userName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -48,7 +57,16 @@ fun LoginScreen() {
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
 
+    val state by viewModel.loginStateFlow.collectAsStateWithLifecycle(scope.coroutineContext)
 
+    LaunchedEffect(state) {
+        if (state.isError && state.message.isNotEmpty()) {
+            scope.launch {
+                snackBarHostState.showSnackbar(state.message)
+            }
+            viewModel.errorMessageDisplayed()
+        }
+    }
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { contentPadding ->
 
@@ -61,7 +79,7 @@ fun LoginScreen() {
                 .padding(15.dp)
         ) {
 
-            val (refLogoIcon, refLogoText, refUsername, refPassword, refSwitch, refSwitchText, refLoginBtn, refRegisterText, refRegisterAction) = createRefs()
+            val (refLogoIcon, refLogoText, refUsername, refPassword, refSwitch, refSwitchText, refLoginBtn, refRegisterText, refRegisterAction, refLoader) = createRefs()
             val topGuideline = createGuidelineFromTop(0.45f)
             Icon(
                 Icons.Default.Lock,
@@ -106,11 +124,12 @@ fun LoginScreen() {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
+                maxLines = 1,
                 value = userName,
                 onValueChange = { userName = it },
                 placeholder = {
                     Text(
-                        "Enter usecase.User Name",
+                        "Enter User Name",
                         style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
                     )
                 },
@@ -137,6 +156,7 @@ fun LoginScreen() {
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
+                maxLines = 1,
                 value = password,
                 onValueChange = { password = it },
                 placeholder = {
@@ -156,6 +176,7 @@ fun LoginScreen() {
                 textStyle = AppTheme.typography.body.copy(color = AppTheme.colors.text)
 
             )
+
 
             Switch(
                 checked = rememberMe,
@@ -198,7 +219,7 @@ fun LoginScreen() {
                     },
                 colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
                 onClick = {
-
+                    viewModel.doLogin(userName, password)
                 }
 
             ) {
@@ -207,7 +228,17 @@ fun LoginScreen() {
                     style = AppTheme.typography.label.copy(color = AppTheme.colors.text)
                 )
             }
-
+            if (state.isLoading)
+                CircularProgressIndicator(
+                    modifier = Modifier.width(25.dp).constrainAs(refLoader) {
+                        top.linkTo(refLoginBtn.bottom, 10.dp)
+                        start.linkTo(refLoginBtn.start)
+                        end.linkTo(refLoginBtn.end)
+                    },
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    strokeWidth = 2.dp
+                )
 
             Text("Click here to register",
                 style = AppTheme.typography.body.copy(color = AppTheme.colors.text),
@@ -228,3 +259,8 @@ fun LoginScreen() {
 
 }
 
+@Preview
+@Composable
+fun prviewMe() {
+    LoginScene()
+}

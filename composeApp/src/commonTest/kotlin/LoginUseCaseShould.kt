@@ -7,8 +7,8 @@ import io.mockative.coEvery
 import io.mockative.coVerify
 import io.mockative.mock
 import kotlinx.coroutines.test.runTest
-import usecase.LoginUseCase
-import usecase.User
+import domain.usecase.LoginUseCase
+import domain.model.User
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
