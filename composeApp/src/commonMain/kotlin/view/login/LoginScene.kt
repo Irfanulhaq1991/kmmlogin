@@ -48,7 +48,7 @@ import moe.tlaster.precompose.koin.koinViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class)) {
+fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class),onRegisterClicked:()->Unit) {
 
 
     var userName by remember { mutableStateOf("") }
@@ -250,17 +250,11 @@ fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class))
                     }
                     .clickable {
                         scope.launch {
-                            snackBarHostState.showSnackbar("Register Not implemented")
+                            onRegisterClicked()
                         }
 
                     })
         }
     }
 
-}
-
-@Preview
-@Composable
-fun prviewMe() {
-    LoginScene()
 }
