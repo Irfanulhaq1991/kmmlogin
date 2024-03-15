@@ -7,6 +7,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.context.startKoin
 
 import view.login.LoginScene
+import view.registeration.RegisterScene
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -15,9 +16,10 @@ fun App() {
     startKoin {
         modules(mainModule)
     }
+
     PreComposeApp {
         AppTheme {
-            LoginScene()
+            RegisterScene()
         }
     }
 }
