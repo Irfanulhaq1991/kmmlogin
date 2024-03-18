@@ -1,5 +1,6 @@
 package view.registeration
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.DropdownMenu
@@ -42,13 +44,30 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.irfan.composeexploration.ui.theme.theme3.AppTheme
+import dev.icerock.moko.media.compose.BindMediaPickerEffect
+import dev.icerock.moko.media.compose.rememberMediaPickerControllerFactory
+import dev.icerock.moko.media.compose.toImageBitmap
+import dev.icerock.moko.media.picker.MediaSource
+import dev.icerock.moko.permissions.DeniedAlwaysException
+import dev.icerock.moko.permissions.DeniedException
+import dev.icerock.moko.permissions.Permission
+import dev.icerock.moko.permissions.PermissionsController
+import dev.icerock.moko.permissions.compose.BindEffect
+import dev.icerock.moko.permissions.compose.PermissionsControllerFactory
+import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
+import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScene(onCancel: () -> Unit) {
@@ -65,8 +84,16 @@ fun RegisterScene(onCancel: () -> Unit) {
     val genderOptions = listOf("Select Gender", "Male", "Female", "Prefer Not To Reveal")
     var selectedItem by remember { mutableStateOf(genderOptions[0]) }
     var expanded by remember { mutableStateOf(false) }
-
     var showDialog by remember { mutableStateOf(false) }
+
+    val factory: PermissionsControllerFactory = rememberPermissionsControllerFactory()
+    val controller: PermissionsController =
+        remember(factory) { factory.createPermissionsController() }
+    val mediaFactory = rememberMediaPickerControllerFactory()
+    val mediaPicker = remember(mediaFactory) { mediaFactory.createMediaPickerController() }
+    var profileImage by remember { mutableStateOf<ImageBitmap?>(null) }
+    BindEffect(controller)
+    BindMediaPickerEffect(mediaPicker)
 
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { contentPadding ->
@@ -94,20 +121,69 @@ fun RegisterScene(onCancel: () -> Unit) {
                 refGenderOptions
             ) = createRefs()
             val topGuideline = createGuidelineFromTop(0.30f)
-            Icon(
-                Icons.Default.AccountBox,
 
-                contentDescription = "...",
-                tint = AppTheme.colors.secondary,
-                modifier = Modifier
-                    .size(100.dp)
-                    .constrainAs(refLogoIcon) {
-                        bottom.linkTo(refLogoText.top, 10.dp)
-                        end.linkTo(refLogoText.end)
-                        start.linkTo(refLogoText.start)
-
-                    }
-            )
+            if (profileImage != null)
+                Image(
+                    bitmap = profileImage!!,
+                    contentDescription = "...",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(120.dp)
+                        .constrainAs(refLogoIcon) {
+                            bottom.linkTo(refLogoText.top, 10.dp)
+                            end.linkTo(refLogoText.end)
+                            start.linkTo(refLogoText.start)
+                        }
+                        .clip(RoundedCornerShape(percent = 10))
+                        .clickable {
+                            scope.launch {
+                                try {
+                                    controller.providePermission(Permission.GALLERY)
+                                    // Permission has been granted successfully.
+                                    val result = mediaPicker.pickImage(MediaSource.GALLERY)
+                                    profileImage = result.toImageBitmap()
+                                } catch (deniedAlways: DeniedAlwaysException) {
+                                    // Permission is always denied.
+                                    controller.openAppSettings()
+                                    snackBarHostState.showSnackbar(deniedAlways.message.toString())
+                                } catch (denied: DeniedException) {
+                                    // Permission was denied.
+                                    snackBarHostState.showSnackbar(denied.message.toString())
+                                }
+                            }
+                        }
+                )
+            else
+                Icon(
+                    Icons.Default.AccountBox,
+                    contentDescription = "...",
+                    tint = AppTheme.colors.secondary,
+                    modifier = Modifier
+                        .size(120.dp)
+                        .constrainAs(refLogoIcon) {
+                            bottom.linkTo(refLogoText.top, 10.dp)
+                            end.linkTo(refLogoText.end)
+                            start.linkTo(refLogoText.start)
+                        }
+                        .clip(RoundedCornerShape(percent = 10))
+                        .clickable {
+                            scope.launch {
+                                try {
+                                    controller.providePermission(Permission.GALLERY)
+                                    // Permission has been granted successfully.
+                                    val result = mediaPicker.pickImage(MediaSource.GALLERY)
+                                    profileImage = result.toImageBitmap()
+                                } catch (deniedAlways: DeniedAlwaysException) {
+                                    // Permission is always denied.
+                                    controller.openAppSettings()
+                                    snackBarHostState.showSnackbar(deniedAlways.message.toString())
+                                } catch (denied: DeniedException) {
+                                    // Permission was denied.
+                                    snackBarHostState.showSnackbar(denied.message.toString())
+                                }
+                            }
+                        }
+                )
             Text(
                 text = "REGISTER",
                 style = AppTheme.typography.label
@@ -119,7 +195,7 @@ fun RegisterScene(onCancel: () -> Unit) {
                 modifier = Modifier.constrainAs(refLogoText) {
                     end.linkTo(parent.end)
                     start.linkTo(parent.start)
-                    bottom.linkTo(topGuideline, 80.dp)
+                    bottom.linkTo(topGuideline, 60.dp)
                 }
             )
 
@@ -432,7 +508,6 @@ fun RegisterScene(onCancel: () -> Unit) {
                             Text(
                                 "Confirm",
                                 style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
-
                             )
                         }
                     },
@@ -449,12 +524,10 @@ fun RegisterScene(onCancel: () -> Unit) {
                             Text(
                                 "Dismiss",
                                 style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
-
                             )
                         }
                     },
                 )
-
         }
     }
 

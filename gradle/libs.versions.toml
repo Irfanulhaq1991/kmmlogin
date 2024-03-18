@@ -10,6 +10,7 @@ androidx-core-ktx = "1.12.0"
 androidx-espresso-core = "3.5.1"
 androidx-material = "1.11.0"
 androidx-test-junit = "1.1.5"
+atomicfu = "0.23.2"
 compose = "1.6.2"
 compose-plugin = "1.6.0"
 constraintlayoutComposeMultiplatform = "0.2.3"
@@ -18,13 +19,16 @@ koin = "3.5.3"
 koinCompose = "1.1.2"
 kotlin = "1.9.22"
 kotlinxCoroutinesCore = "1.8.0-RC2"
+mediaCompose = "0.11.0"
 mockative = "2.0.1"
+permissionsCompose = "0.17.0"
 precompose = "1.6.0-rc02"
 truthish = "0.6.5"
 ksp = "1.9.22-1.0.16"
 
 
 [libraries]
+atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
 constraintlayout-compose-multiplatform = { module = "tech.annexflow.compose:constraintlayout-compose-multiplatform", version.ref = "constraintlayoutComposeMultiplatform" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koinCompose" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -44,7 +48,10 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = 
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesCore" }
+media = { module = "dev.icerock.moko:media", version.ref = "mediaCompose" }
+media-compose = { module = "dev.icerock.moko:media-compose", version.ref = "mediaCompose" }
 mockative = { module = "io.mockative:mockative", version.ref = "mockative" }
+permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "permissionsCompose" }
 precompose = { module = "moe.tlaster:precompose", version.ref = "precompose" }
 precompose-koin = { module = "moe.tlaster:precompose-koin", version.ref = "precompose" }
 precompose-viewmodel = { module = "moe.tlaster:precompose-viewmodel", version.ref = "precompose" }

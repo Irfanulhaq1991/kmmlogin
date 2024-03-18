@@ -13,6 +13,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories {
         google()
+        maven("https://jitpack.io")
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }

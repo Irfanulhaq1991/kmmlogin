@@ -14,7 +14,7 @@ kotlin {
             }
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -25,9 +25,9 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
-        
+
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
@@ -48,6 +48,10 @@ kotlin {
             implementation(libs.precompose)
             implementation(libs.precompose.viewmodel)
             implementation(libs.precompose.koin)
+            implementation(libs.permissions.compose) // permissions api + compose extensions
+            implementation(libs.media)
+            implementation(libs.media.compose)
+            implementation(libs.atomicfu)
 
         }
         commonTest.dependencies {
