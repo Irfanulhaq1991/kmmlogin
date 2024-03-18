@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
+import androidx.compose.material.RadioButton
+import androidx.compose.material.RadioButtonDefaults
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
@@ -43,6 +46,7 @@ import com.irfan.composeexploration.ui.theme.theme3.AppTheme
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import moe.tlaster.precompose.koin.koinViewModel
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import view.login.LoginViewModel
 
 @Composable
@@ -54,6 +58,8 @@ fun RegisterScene() {
     var confirmPassword by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
+    val gender = listOf("Male", "Female")
+    val (selectedOption, setSelectedOption) = remember { mutableStateOf(gender[0])}
 
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { contentPadding ->
@@ -67,7 +73,18 @@ fun RegisterScene() {
                 .padding(15.dp)
         ) {
 
-            val (refLogoIcon, refLogoText, refUsername, refPassword, refConfirmPassword, refLoginBtn, refRegisterText, refRegisterAction, refLoader) = createRefs()
+            val (refLogoIcon,
+                refLogoText,
+                refName,
+                refPassword,
+                refConfirmPassword,
+                refLoginBtn,
+                refRegisterText,
+                refRegisterAction,
+                refLoader,
+                refEmail,
+                refGender
+                ) = createRefs()
             val topGuideline = createGuidelineFromTop(0.35f)
             Icon(
                 Icons.Default.AccountBox,
@@ -100,14 +117,14 @@ fun RegisterScene() {
             OutlinedTextField(
 
                 modifier = Modifier
-                    .testTag("userName")
+                    .testTag("fullName")
                     .fillMaxWidth()
                     .border(
                         width = 1.dp,
                         color = AppTheme.colors.secondary,
                         shape = RoundedCornerShape(25.dp)
                     )
-                    .constrainAs(refUsername) {
+                    .constrainAs(refName) {
                         top.linkTo(topGuideline)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
@@ -117,7 +134,7 @@ fun RegisterScene() {
                 onValueChange = { userName = it },
                 placeholder = {
                     Text(
-                        "Enter User Name",
+                        "Enter Full Name",
                         style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
                     )
                 },
@@ -131,6 +148,41 @@ fun RegisterScene() {
             )
 
             OutlinedTextField(
+
+                modifier = Modifier
+                    .testTag("fullName")
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = AppTheme.colors.secondary,
+                        shape = RoundedCornerShape(25.dp)
+                    )
+                    .constrainAs(refEmail) {
+                        top.linkTo(refName.bottom,10.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                maxLines = 1,
+                value = userName,
+                onValueChange = { userName = it },
+                placeholder = {
+                    Text(
+                        "Enter Email",
+                        style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedLabelColor = AppTheme.colors.secondary,
+                    cursorColor = AppTheme.colors.secondary
+                ),
+                textStyle = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+            )
+
+
+
+            OutlinedTextField(
                 modifier = Modifier
                     .testTag("password")
                     .fillMaxWidth()
@@ -140,7 +192,7 @@ fun RegisterScene() {
                         shape = RoundedCornerShape(25.dp)
                     )
                     .constrainAs(refPassword) {
-                        top.linkTo(refUsername.bottom, 10.dp)
+                        top.linkTo(refEmail.bottom, 10.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
@@ -199,6 +251,29 @@ fun RegisterScene() {
                 textStyle = AppTheme.typography.body.copy(color = AppTheme.colors.text)
 
             )
+            Row( modifier = Modifier
+                .testTag("gender")
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    color = AppTheme.colors.secondary,
+                    shape = RoundedCornerShape(25.dp)
+                )
+                .constrainAs(refGender) {
+                    top.linkTo(refConfirmPassword.bottom, 10.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }){
+                Text("Gender")
+                gender.forEach { option ->
+                    RadioButton(
+                        selected = option == selectedOption,
+                        onClick = { setSelectedOption(option) },
+                        colors = RadioButtonDefaults.colors(selectedColor = AppTheme.colors.primary) // Customize the selected color
+                    )
+                    Text(text = option)
+                }
+            }
 
             Button(
                 modifier = Modifier
