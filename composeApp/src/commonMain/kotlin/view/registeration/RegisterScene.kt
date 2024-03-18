@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
@@ -32,6 +33,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +51,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.irfan.composeexploration.ui.theme.theme3.AppTheme
 
 @Composable
-fun RegisterScene() {
+fun RegisterScene(onCancel: () -> Unit) {
 
 
     var userName by remember { mutableStateOf("") }
@@ -63,6 +65,8 @@ fun RegisterScene() {
     val genderOptions = listOf("Select Gender", "Male", "Female", "Prefer Not To Reveal")
     var selectedItem by remember { mutableStateOf(genderOptions[0]) }
     var expanded by remember { mutableStateOf(false) }
+
+    var showDialog by remember { mutableStateOf(false) }
 
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { contentPadding ->
@@ -393,6 +397,7 @@ fun RegisterScene() {
                         .testTag("doCancel"),
                     colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
                     onClick = {
+                        showDialog = true
                     }
 
                 ) {
@@ -402,6 +407,53 @@ fun RegisterScene() {
                     )
                 }
             }
+
+            if (showDialog)
+                AlertDialog(
+                    text = {
+                        Text(
+                            "Are You Sure To Cancel?",
+                            style = AppTheme.typography.label.copy(color = AppTheme.colors.text)
+                        )
+                    },
+                    onDismissRequest = { showDialog = false },
+                    confirmButton = {
+                        Button(
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .testTag("doCancel"),
+                            colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
+
+                            onClick = {
+                                showDialog = false
+                                onCancel()
+                            }
+                        ) {
+                            Text(
+                                "Confirm",
+                                style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .testTag("doCancel"),
+                            colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
+                            onClick = {
+                                showDialog = false
+                            }
+                        ) {
+                            Text(
+                                "Dismiss",
+                                style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+
+                            )
+                        }
+                    },
+                )
 
         }
     }

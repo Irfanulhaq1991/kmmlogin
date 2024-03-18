@@ -32,7 +32,7 @@ fun App() {
                     })
                 }
                 scene("/register") {
-                    RegisterScene()
+                    RegisterScene{ navigator.goBack() }
                 }
             }
         }

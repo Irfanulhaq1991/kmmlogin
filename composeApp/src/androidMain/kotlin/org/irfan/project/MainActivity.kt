@@ -21,5 +21,5 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-   RegisterScene()
+   RegisterScene(onCancel = {})
 }
