@@ -5,14 +5,19 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.RadioButton
 import androidx.compose.material.RadioButtonDefaults
@@ -22,19 +27,18 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -43,11 +47,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.irfan.composeexploration.ui.theme.theme3.AppTheme
-import kotlinx.coroutines.launch
-import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
-import moe.tlaster.precompose.koin.koinViewModel
-import org.jetbrains.compose.ui.tooling.preview.Preview
-import view.login.LoginViewModel
 
 @Composable
 fun RegisterScene() {
@@ -58,8 +57,12 @@ fun RegisterScene() {
     var confirmPassword by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
-    val gender = listOf("Male", "Female")
-    val (selectedOption, setSelectedOption) = remember { mutableStateOf(gender[0])}
+    val premiumNonPremiumOptions = listOf("Premium", "Non Premium")
+    val (selectedOption, setSelectedOption) = remember { mutableStateOf(premiumNonPremiumOptions[0]) }
+
+    val genderOptions = listOf("Select Gender", "Male", "Female", "Prefer Not To Reveal")
+    var selectedItem by remember { mutableStateOf(genderOptions[0]) }
+    var expanded by remember { mutableStateOf(false) }
 
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { contentPadding ->
@@ -83,9 +86,10 @@ fun RegisterScene() {
                 refRegisterAction,
                 refLoader,
                 refEmail,
-                refGender
-                ) = createRefs()
-            val topGuideline = createGuidelineFromTop(0.35f)
+                refPremiumNonPremiumOption,
+                refGenderOptions
+            ) = createRefs()
+            val topGuideline = createGuidelineFromTop(0.30f)
             Icon(
                 Icons.Default.AccountBox,
 
@@ -114,6 +118,36 @@ fun RegisterScene() {
                     bottom.linkTo(topGuideline, 80.dp)
                 }
             )
+
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .testTag("premiumNonPremiumOption")
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = AppTheme.colors.secondary,
+                        shape = RoundedCornerShape(25.dp)
+                    ).padding(start = 5.dp)
+                    .constrainAs(refPremiumNonPremiumOption) {
+                        top.linkTo(topGuideline)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }) {
+                premiumNonPremiumOptions.forEach { option ->
+                    RadioButton(
+                        selected = option == selectedOption,
+                        onClick = { setSelectedOption(option) },
+                        colors = RadioButtonDefaults.colors(selectedColor = AppTheme.colors.primary) // Customize the selected color
+                    )
+                    Text(
+                        text = option,
+                        style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+                    )
+                }
+            }
+
             OutlinedTextField(
 
                 modifier = Modifier
@@ -125,7 +159,7 @@ fun RegisterScene() {
                         shape = RoundedCornerShape(25.dp)
                     )
                     .constrainAs(refName) {
-                        top.linkTo(topGuideline)
+                        top.linkTo(refPremiumNonPremiumOption.bottom, 10.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
@@ -158,7 +192,7 @@ fun RegisterScene() {
                         shape = RoundedCornerShape(25.dp)
                     )
                     .constrainAs(refEmail) {
-                        top.linkTo(refName.bottom,10.dp)
+                        top.linkTo(refName.bottom, 10.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
@@ -181,6 +215,78 @@ fun RegisterScene() {
             )
 
 
+            Box(
+                modifier = Modifier
+                    .testTag("genderContainer")
+                    .fillMaxWidth()
+                    .border(
+                        width = 1.dp,
+                        color = AppTheme.colors.secondary,
+                        shape = RoundedCornerShape(25.dp)
+                    )
+                    .constrainAs(refGenderOptions) {
+                        top.linkTo(refEmail.bottom, 10.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+            ) {
+                Column {
+                    OutlinedTextField(
+                        value = selectedItem,
+                        onValueChange = { },
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = { Icon(Icons.Outlined.ArrowDropDown, null) },
+                        readOnly = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedLabelColor = AppTheme.colors.secondary,
+                            cursorColor = AppTheme.colors.secondary,
+
+                            ),
+                        textStyle = AppTheme.typography.body.copy(
+                            color =
+                            AppTheme.colors.text
+                        )
+
+                    )
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+
+                    ) {
+                        genderOptions.forEach { item ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    selectedItem = item
+                                    expanded = false
+                                }
+                            ) {
+                                Text(
+                                    text = item,
+                                    style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(Color.Transparent)
+                        .padding(10.dp)
+                        .clickable(
+                            onClick = { expanded = !expanded }
+                        )
+                )
+
+            }
+
 
             OutlinedTextField(
                 modifier = Modifier
@@ -192,7 +298,7 @@ fun RegisterScene() {
                         shape = RoundedCornerShape(25.dp)
                     )
                     .constrainAs(refPassword) {
-                        top.linkTo(refEmail.bottom, 10.dp)
+                        top.linkTo(refGenderOptions.bottom, 10.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     },
@@ -251,49 +357,52 @@ fun RegisterScene() {
                 textStyle = AppTheme.typography.body.copy(color = AppTheme.colors.text)
 
             )
-            Row( modifier = Modifier
-                .testTag("gender")
-                .fillMaxWidth()
-                .border(
-                    width = 1.dp,
-                    color = AppTheme.colors.secondary,
-                    shape = RoundedCornerShape(25.dp)
-                )
-                .constrainAs(refGender) {
-                    top.linkTo(refConfirmPassword.bottom, 10.dp)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }){
-                Text("Gender")
-                gender.forEach { option ->
-                    RadioButton(
-                        selected = option == selectedOption,
-                        onClick = { setSelectedOption(option) },
-                        colors = RadioButtonDefaults.colors(selectedColor = AppTheme.colors.primary) // Customize the selected color
-                    )
-                    Text(text = option)
-                }
-            }
 
-            Button(
+            Row(
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .testTag("doRegister")
-                    .fillMaxWidth(0.5f)
-                    .constrainAs(refLoginBtn) {
-                        bottom.linkTo(parent.bottom, 30.dp)
+                    .fillMaxWidth()
+                    .constrainAs(refRegisterAction) {
+                        top.linkTo(refConfirmPassword.bottom, 30.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                    },
-                colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
-                onClick = {
+                    }
+                    .padding(start = 12.dp, end = 12.dp)
+            ) {
+                Button(
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .weight(1f)
+                        .testTag("doRegister"),
+                    colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
+                    onClick = {
+                    }
+
+                ) {
+                    Text(
+                        text = "Register",
+                        style = AppTheme.typography.label.copy(color = AppTheme.colors.text)
+                    )
                 }
 
-            ) {
-                Text(
-                    text = "Register",
-                    style = AppTheme.typography.label.copy(color = AppTheme.colors.text)
-                )
+                Button(
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .weight(1f)
+                        .testTag("doCancel"),
+                    colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
+                    onClick = {
+                    }
+
+                ) {
+                    Text(
+                        text = "Cancel",
+                        style = AppTheme.typography.label.copy(color = AppTheme.colors.text)
+                    )
+                }
             }
+
         }
     }
 
