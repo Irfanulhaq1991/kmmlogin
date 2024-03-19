@@ -67,8 +67,14 @@ import dev.icerock.moko.permissions.PermissionsController
 import dev.icerock.moko.permissions.compose.BindEffect
 import dev.icerock.moko.permissions.compose.PermissionsControllerFactory
 import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
+import kmmlogin.composeapp.generated.resources.Res
+import kmmlogin.composeapp.generated.resources.placeholder
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.imageResource
+import org.jetbrains.compose.resources.painterResource
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun RegisterScene(onCancel: () -> Unit) {
 
@@ -91,12 +97,13 @@ fun RegisterScene(onCancel: () -> Unit) {
         remember(factory) { factory.createPermissionsController() }
     val mediaFactory = rememberMediaPickerControllerFactory()
     val mediaPicker = remember(mediaFactory) { mediaFactory.createMediaPickerController() }
-    var profileImage by remember { mutableStateOf<ImageBitmap?>(null) }
+    val placeholder = imageResource(Res.drawable.placeholder)
+    var profileImage by remember { mutableStateOf(placeholder) }
     BindEffect(controller)
     BindMediaPickerEffect(mediaPicker)
 
 
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { contentPadding ->
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { _ ->
 
         ConstraintLayout(
             modifier = Modifier
@@ -122,9 +129,9 @@ fun RegisterScene(onCancel: () -> Unit) {
             ) = createRefs()
             val topGuideline = createGuidelineFromTop(0.30f)
 
-            if (profileImage != null)
                 Image(
-                    bitmap = profileImage!!,
+                    bitmap = profileImage,
+                  //  bitmap = profileImage!!,
                     contentDescription = "...",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -153,39 +160,9 @@ fun RegisterScene(onCancel: () -> Unit) {
                             }
                         }
                 )
-            else
-                Icon(
-                    Icons.Default.AccountBox,
-                    contentDescription = "...",
-                    tint = AppTheme.colors.secondary,
-                    modifier = Modifier
-                        .size(120.dp)
-                        .constrainAs(refLogoIcon) {
-                            bottom.linkTo(refLogoText.top, 10.dp)
-                            end.linkTo(refLogoText.end)
-                            start.linkTo(refLogoText.start)
-                        }
-                        .clip(RoundedCornerShape(percent = 10))
-                        .clickable {
-                            scope.launch {
-                                try {
-                                    controller.providePermission(Permission.GALLERY)
-                                    // Permission has been granted successfully.
-                                    val result = mediaPicker.pickImage(MediaSource.GALLERY)
-                                    profileImage = result.toImageBitmap()
-                                } catch (deniedAlways: DeniedAlwaysException) {
-                                    // Permission is always denied.
-                                    controller.openAppSettings()
-                                    snackBarHostState.showSnackbar(deniedAlways.message.toString())
-                                } catch (denied: DeniedException) {
-                                    // Permission was denied.
-                                    snackBarHostState.showSnackbar(denied.message.toString())
-                                }
-                            }
-                        }
-                )
+
             Text(
-                text = "REGISTER",
+                text = "PHOTO",
                 style = AppTheme.typography.label
                     .copy(
                         fontSize = 25.sp,
