@@ -30,6 +30,8 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -129,19 +131,33 @@ fun RegisterScene(onCancel: () -> Unit) {
             ) = createRefs()
             val topGuideline = createGuidelineFromTop(0.30f)
 
+
+            Box(modifier = Modifier.constrainAs(refLogoIcon) {
+                bottom.linkTo(refLogoText.top, 5.dp)
+                end.linkTo(parent.end)
+                start.linkTo(parent.start)
+                horizontalBias = 0.522f
+            }.size(130.dp)) {
                 Image(
                     bitmap = profileImage,
-                  //  bitmap = profileImage!!,
+                    //  bitmap = profileImage!!,
                     contentDescription = "...",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
+                        .border(width = 1.dp, color = Color.Black, shape = RoundedCornerShape(10))
                         .size(120.dp)
-                        .constrainAs(refLogoIcon) {
-                            bottom.linkTo(refLogoText.top, 10.dp)
-                            end.linkTo(refLogoText.end)
-                            start.linkTo(refLogoText.start)
-                        }
                         .clip(RoundedCornerShape(percent = 10))
+
+                )
+                Icon(
+                    Icons.Default.Edit,
+                    contentDescription = "...",
+                   // tint = AppTheme.colors.secondary,
+                    modifier = Modifier
+                        .background(Color.White, CircleShape)
+                        .padding(3.dp)
+                        .align(Alignment.CenterEnd)
+                        .size(18.dp)
                         .clickable {
                             scope.launch {
                                 try {
@@ -160,6 +176,7 @@ fun RegisterScene(onCancel: () -> Unit) {
                             }
                         }
                 )
+            }
 
             Text(
                 text = "PHOTO",
