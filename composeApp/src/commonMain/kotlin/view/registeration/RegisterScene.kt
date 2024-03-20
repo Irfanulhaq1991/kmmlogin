@@ -380,6 +380,7 @@ fun RegisterScene(onCancel: () -> Unit) {
                 maxLines = 1,
                 value = password,
                 onValueChange = { password = it },
+                visualTransformation = PasswordVisualTransformation(),
                 placeholder = {
                     Text(
                         "Enter Password",
@@ -415,6 +416,7 @@ fun RegisterScene(onCancel: () -> Unit) {
                 maxLines = 1,
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
+                visualTransformation = PasswordVisualTransformation(),
                 placeholder = {
                     Text(
                         "Confirm Password",
