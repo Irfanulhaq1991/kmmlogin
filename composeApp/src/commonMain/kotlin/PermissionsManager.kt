@@ -27,7 +27,6 @@ interface PermissionCallback{
 
 expect class PermissionManger(callback: PermissionCallback):PermissionHandler
 
-@Composable
 expect fun createPermissionManger(callback: PermissionCallback):PermissionManger
 
 

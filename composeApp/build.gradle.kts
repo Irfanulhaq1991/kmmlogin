@@ -116,6 +116,9 @@ android {
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+        implementation(libs.androidx.activity.compose)
+        implementation(libs.accompanist.permissions)
+
     }
 }
 
