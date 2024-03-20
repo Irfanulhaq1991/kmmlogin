@@ -11,9 +11,12 @@ import kotlinx.coroutines.delay
 import org.koin.dsl.module
 import domain.usecase.ILoginUseCase
 import domain.usecase.LoginUseCase
+import org.koin.core.context.startKoin
 import view.login.LoginViewModel
 
-val mainModule = module {
+
+
+val shareMainModule = module {
     factory<UsrApi> { FakApi() }
     factory<IUserRemoteDataSource> { UserRemoteDataSource(get()) }
     factory<IUserRepository> { UserRepository(get()) }
@@ -23,6 +26,8 @@ val mainModule = module {
     }
 
 }
+
+
 
 
 class FakApi : UsrApi {

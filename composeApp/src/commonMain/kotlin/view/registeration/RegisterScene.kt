@@ -82,6 +82,7 @@ fun RegisterScene(onCancel: () -> Unit) {
 
 
     var userName by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
@@ -129,7 +130,7 @@ fun RegisterScene(onCancel: () -> Unit) {
                 refPremiumNonPremiumOption,
                 refGenderOptions
             ) = createRefs()
-            val topGuideline = createGuidelineFromTop(0.30f)
+            val topGuideline = createGuidelineFromTop(0.35f)
 
 
             Box(modifier = Modifier.constrainAs(refLogoIcon) {
@@ -271,8 +272,8 @@ fun RegisterScene(onCancel: () -> Unit) {
                         end.linkTo(parent.end)
                     },
                 maxLines = 1,
-                value = userName,
-                onValueChange = { userName = it },
+                value = email,
+                onValueChange = { email = it },
                 placeholder = {
                     Text(
                         "Enter Email",
