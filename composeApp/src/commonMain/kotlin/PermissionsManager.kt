@@ -8,26 +8,14 @@ enum class PermissionType{
     CAMERA, GALLERY
 }
 
-interface PermissionHandler{
-    @Composable
-    fun askPermission(permission: PermissionType)
-
-    @Composable
-    fun isPermissionGranted(permission: PermissionType): Boolean
-
-    @Composable
-    fun launchSettings()
-
+interface PermissionsManager{
+   suspend fun askPermission(permission: PermissionType):PermissionStatus
+   suspend fun isPermissionGranted(permission: PermissionType): Boolean
+   fun launchSettings()
 }
 
-
-interface PermissionCallback{
-    fun onPermissionStatus(permission: PermissionType, status: PermissionStatus)
-}
-
-expect class PermissionManger(callback: PermissionCallback):PermissionHandler
-
-expect fun createPermissionManger(callback: PermissionCallback):PermissionManger
+@Composable
+expect fun rememberPermissionManager():PermissionsManager
 
 
 

@@ -75,6 +75,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
+import rememberPermissionManager
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -94,16 +95,18 @@ fun RegisterScene(onCancel: () -> Unit) {
     var selectedItem by remember { mutableStateOf(genderOptions[0]) }
     var expanded by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
-
-    val factory: PermissionsControllerFactory = rememberPermissionsControllerFactory()
-    val controller: PermissionsController =
-        remember(factory) { factory.createPermissionsController() }
-    val mediaFactory = rememberMediaPickerControllerFactory()
-    val mediaPicker = remember(mediaFactory) { mediaFactory.createMediaPickerController() }
     val placeholder = imageResource(Res.drawable.placeholder)
     var profileImage by remember { mutableStateOf(placeholder) }
-    BindEffect(controller)
-    BindMediaPickerEffect(mediaPicker)
+
+//    val factory: PermissionsControllerFactory = rememberPermissionsControllerFactory()
+//    val controller: PermissionsController =
+//        remember(factory) { factory.createPermissionsController() }
+//    val mediaFactory = rememberMediaPickerControllerFactory()
+//    val mediaPicker = remember(mediaFactory) { mediaFactory.createMediaPickerController() }
+//
+//    BindEffect(controller)
+//    BindMediaPickerEffect(mediaPicker)
+    val permissionsManager = rememberPermissionManager()
 
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { _ ->
@@ -161,19 +164,25 @@ fun RegisterScene(onCancel: () -> Unit) {
                         .size(18.dp)
                         .clickable {
                             scope.launch {
-                                try {
-                                    controller.providePermission(Permission.GALLERY)
-                                    // Permission has been granted successfully.
-                                    val result = mediaPicker.pickImage(MediaSource.GALLERY)
-                                    profileImage = result.toImageBitmap()
-                                } catch (deniedAlways: DeniedAlwaysException) {
-                                    // Permission is always denied.
-                                    controller.openAppSettings()
-                                    snackBarHostState.showSnackbar(deniedAlways.message.toString())
-                                } catch (denied: DeniedException) {
-                                    // Permission was denied.
-                                    snackBarHostState.showSnackbar(denied.message.toString())
-                                }
+                              val status =   permissionsManager.askPermission(PermissionType.GALLERY)
+                                if (status == PermissionStatus.GRANTED)
+                                    snackBarHostState.showSnackbar("Permission Granted")
+                                else
+                                    snackBarHostState.showSnackbar("Permission Denied")
+
+//                                try {
+//                                    controller.providePermission(Permission.GALLERY)
+//                                    // Permission has been granted successfully.
+//                                    val result = mediaPicker.pickImage(MediaSource.GALLERY)
+//                                    profileImage = result.toImageBitmap()
+//                                } catch (deniedAlways: DeniedAlwaysException) {
+//                                    // Permission is always denied.
+//                                    controller.openAppSettings()
+//                                    snackBarHostState.showSnackbar(deniedAlways.message.toString())
+//                                } catch (denied: DeniedException) {
+//                                    // Permission was denied.
+//                                    snackBarHostState.showSnackbar(denied.message.toString())
+//                                }
                             }
                         }
                 )
@@ -380,7 +389,6 @@ fun RegisterScene(onCancel: () -> Unit) {
                 maxLines = 1,
                 value = password,
                 onValueChange = { password = it },
-                visualTransformation = PasswordVisualTransformation(),
                 placeholder = {
                     Text(
                         "Enter Password",
@@ -416,7 +424,6 @@ fun RegisterScene(onCancel: () -> Unit) {
                 maxLines = 1,
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                visualTransformation = PasswordVisualTransformation(),
                 placeholder = {
                     Text(
                         "Confirm Password",

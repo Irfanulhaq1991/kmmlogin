@@ -1,5 +1,8 @@
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import platform.AVFoundation.AVAuthorizationStatus
 import platform.AVFoundation.AVAuthorizationStatusAuthorized
 import platform.AVFoundation.AVAuthorizationStatusDenied
@@ -16,102 +19,114 @@ import platform.Photos.PHAuthorizationStatusNotDetermined
 import platform.Photos.PHPhotoLibrary
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationOpenSettingsURLString
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-actual class PermissionManger actual constructor(private val callback: PermissionCallback) :
-    PermissionHandler {
+class PermissionMangerIosImpl() : PermissionsManager {
 
-    @Composable
-    override fun askPermission(permission: PermissionType) {
+    override suspend fun askPermission(permission: PermissionType) =
         when (permission) {
             PermissionType.CAMERA -> {
                 val permissionStatus: AVAuthorizationStatus =
-                    remember { AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo) }
-                askCameraPermission(permissionStatus, permission)
+                    AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
+                askCameraPermission(permissionStatus)
             }
 
             PermissionType.GALLERY -> {
-                val permissionStatus: PHAuthorizationStatus =
-                    remember { PHPhotoLibrary.authorizationStatus() }
-                askGalleryPermission(permissionStatus, permission)
+                val permissionStatus: PHAuthorizationStatus = PHPhotoLibrary.authorizationStatus()
+                askGalleryPermission(permissionStatus)
             }
         }
-    }
 
-    private fun askGalleryPermission(
-        permissionStatus: PHAuthorizationStatus,
-        permission: PermissionType
-    ) {
-        when (permissionStatus) {
-            PHAuthorizationStatusAuthorized -> {
-                callback.onPermissionStatus(permission, PermissionStatus.GRANTED)
-            }
 
-            PHAuthorizationStatusDenied -> {
-                callback.onPermissionStatus(permission, PermissionStatus.DENIED)
-
-            }
-
-            PHAuthorizationStatusNotDetermined -> {
-                PHPhotoLibrary.requestAuthorization { newStatus ->
-                    askGalleryPermission(newStatus, permission)
-                }
-            }
-        }
-    }
-
-    @Composable
-    override fun isPermissionGranted(permission: PermissionType): Boolean {
-        return when (permission) {
+    override suspend fun isPermissionGranted(permission: PermissionType) =
+        when (permission) {
             PermissionType.CAMERA -> {
                 val permissionStatus: AVAuthorizationStatus =
-                    remember { AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo) }
+                    AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeVideo)
                 permissionStatus == AVAuthorizationStatusAuthorized
 
             }
 
             PermissionType.GALLERY -> {
-                val permissionStatus: PHAuthorizationStatus =
-                    remember { PHPhotoLibrary.authorizationStatus() }
+                val permissionStatus: PHAuthorizationStatus = PHPhotoLibrary.authorizationStatus()
                 permissionStatus == PHAuthorizationStatusAuthorized
             }
         }
-    }
 
-    @Composable
+
     override fun launchSettings() {
         NSURL.URLWithString(UIApplicationOpenSettingsURLString)?.let {
             UIApplication.sharedApplication.openURL(it)
         }
     }
 
-    private fun askCameraPermission(
-        permissionStatus: AVAuthorizationStatus,
-        permission: PermissionType
-    ) {
-        when (permissionStatus) {
-            AVAuthorizationStatusAuthorized -> {
-                callback.onPermissionStatus(permission, PermissionStatus.GRANTED)
+    private suspend fun askGalleryPermission(
+        permissionStatus: PHAuthorizationStatus,
+    ): PermissionStatus {
+        return when (permissionStatus) {
+            PHAuthorizationStatusAuthorized -> {
+                PermissionStatus.GRANTED
             }
 
-            AVAuthorizationStatusDenied -> {
-                callback.onPermissionStatus(permission, PermissionStatus.DENIED)
+            PHAuthorizationStatusDenied -> {
+                PermissionStatus.DENIED
             }
 
-            AVAuthorizationStatusNotDetermined -> {
-                AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) { isGranted ->
-                    if (isGranted)
-                        callback.onPermissionStatus(permission, PermissionStatus.GRANTED)
-                    else
-                        callback.onPermissionStatus(permission, PermissionStatus.DENIED)
-
+            PHAuthorizationStatusNotDetermined -> {
+                withContext(Dispatchers.Main) {
+                    suspendCancellableCoroutine { continuation ->
+                        PHPhotoLibrary.requestAuthorization { newStatus ->
+                            if (newStatus == PHAuthorizationStatusAuthorized)
+                                continuation.resume(PermissionStatus.GRANTED)
+                            else
+                                continuation.resume(PermissionStatus.DENIED)
+                        }
+                    }
 
                 }
             }
+
+            else -> {
+                throw IllegalStateException("Invalid PermissionStatus")
+            }
+
         }
     }
 }
 
 
-actual fun createPermissionManger(callback: PermissionCallback): PermissionManger {
-    return PermissionManger(callback)
+private suspend fun askCameraPermission(
+    permissionStatus: AVAuthorizationStatus,
+): PermissionStatus {
+    return when (permissionStatus) {
+        AVAuthorizationStatusAuthorized -> {
+            PermissionStatus.GRANTED
+        }
+
+        AVAuthorizationStatusDenied -> {
+            PermissionStatus.DENIED
+        }
+
+        AVAuthorizationStatusNotDetermined -> {
+            suspendCoroutine { continuation ->
+                AVCaptureDevice.requestAccessForMediaType(AVMediaTypeVideo) { isGranted ->
+                    if (isGranted)
+                        continuation.resume(PermissionStatus.GRANTED)
+                    else
+                        continuation.resume(PermissionStatus.DENIED)
+                }
+            }
+        }
+
+        else -> {
+            throw IllegalStateException("Invalid PermissionStatus")
+        }
+    }
+}
+
+
+@Composable
+actual fun rememberPermissionManager(): PermissionsManager {
+    return PermissionMangerIosImpl()
 }
