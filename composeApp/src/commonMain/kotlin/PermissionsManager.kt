@@ -1,4 +1,5 @@
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.ImageBitmap
 
 
 enum class PermissionStatus{
@@ -14,9 +15,15 @@ interface PermissionsManager{
    fun launchSettings()
 }
 
+interface PhotoManagerManager{
+    suspend fun getGalleryPhoto():ImageBitmap?
+    suspend fun getCameraPhoto():ImageBitmap?
+}
+
 @Composable
 expect fun rememberPermissionManager():PermissionsManager
 
-
+@Composable
+expect fun rememberPhotoManager():PhotoManagerManager
 
 

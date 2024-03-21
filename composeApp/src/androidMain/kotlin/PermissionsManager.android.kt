@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -14,10 +15,11 @@ import org.irfan.project.PermissionFragment
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+private const val permissionFragmentTag = "permissionFragmentTag"
+
 internal class PermissionMangerAndroidImpl(
     private val context: Context,
 ) : PermissionsManager {
-    private val permissionFragmentTag = "permissionFragmentTag"
     override suspend fun askPermission(permission: PermissionType): PermissionStatus {
         val fragmentManager = (context as FragmentActivity).supportFragmentManager
         val currentFrag: Fragment? = fragmentManager.findFragmentByTag(permissionFragmentTag)
@@ -71,8 +73,41 @@ internal class PermissionMangerAndroidImpl(
 }
 
 
+internal class PhotoManagerAndroidImpl(private val context: Context):PhotoManagerManager{
+    override suspend fun getGalleryPhoto(): ImageBitmap? {
+        val fragmentManager = (context as FragmentActivity).supportFragmentManager
+        val currentFrag: Fragment? = fragmentManager.findFragmentByTag(permissionFragmentTag)
+        val permissionFrag =
+            if (currentFrag != null)
+                currentFrag as PermissionFragment
+            else
+                PermissionFragment().also {
+                    fragmentManager
+                        .beginTransaction()
+                        .add(it, permissionFragmentTag)
+                        .commit()
+                }
+
+        return suspendCoroutine {continuation->
+            permissionFrag.getGalleryImage {
+                continuation.resume(it)
+            }
+        }
+    }
+
+    override suspend fun getCameraPhoto(): ImageBitmap? {
+        TODO("Not yet implemented")
+    }
+
+}
 @Composable
 actual fun rememberPermissionManager(): PermissionsManager {
     val context = LocalContext.current
     return PermissionMangerAndroidImpl(context)
+}
+
+@Composable
+actual fun rememberPhotoManager(): PhotoManagerManager {
+    val context = LocalContext.current
+    return PhotoManagerAndroidImpl(context)
 }

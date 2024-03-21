@@ -76,6 +76,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.resources.painterResource
 import rememberPermissionManager
+import rememberPhotoManager
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -107,7 +108,7 @@ fun RegisterScene(onCancel: () -> Unit) {
 //    BindEffect(controller)
 //    BindMediaPickerEffect(mediaPicker)
     val permissionsManager = rememberPermissionManager()
-
+    val photoManagerManager = rememberPhotoManager()
 
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { _ ->
 
@@ -166,7 +167,7 @@ fun RegisterScene(onCancel: () -> Unit) {
                             scope.launch {
                               val status =   permissionsManager.askPermission(PermissionType.GALLERY)
                                 if (status == PermissionStatus.GRANTED)
-                                    snackBarHostState.showSnackbar("Permission Granted")
+                                    profileImage = photoManagerManager.getGalleryPhoto()!!
                                 else
                                     snackBarHostState.showSnackbar("Permission Denied")
 
