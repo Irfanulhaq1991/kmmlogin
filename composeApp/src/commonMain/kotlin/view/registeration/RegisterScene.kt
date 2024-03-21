@@ -93,9 +93,11 @@ fun RegisterScene(onCancel: () -> Unit) {
     val (selectedOption, setSelectedOption) = remember { mutableStateOf(premiumNonPremiumOptions[0]) }
 
     val genderOptions = listOf("Select Gender", "Male", "Female", "Prefer Not To Reveal")
+    val photoSourceOptions = listOf("Gallery", "Camera")
     var selectedItem by remember { mutableStateOf(genderOptions[0]) }
     var expanded by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+    var expandedPhotoSource by remember { mutableStateOf(false) }
     val placeholder = imageResource(Res.drawable.placeholder)
     var profileImage by remember { mutableStateOf(placeholder) }
 
@@ -121,7 +123,7 @@ fun RegisterScene(onCancel: () -> Unit) {
                 .padding(15.dp)
         ) {
 
-            val (refLogoIcon,
+            val (refPhoto,
                 refLogoText,
                 refName,
                 refPassword,
@@ -132,12 +134,13 @@ fun RegisterScene(onCancel: () -> Unit) {
                 refLoader,
                 refEmail,
                 refPremiumNonPremiumOption,
-                refGenderOptions
+                refGenderOptions,
+                refPhoSourceOptions,
             ) = createRefs()
             val topGuideline = createGuidelineFromTop(0.35f)
 
 
-            Box(modifier = Modifier.constrainAs(refLogoIcon) {
+            Box(modifier = Modifier.constrainAs(refPhoto) {
                 bottom.linkTo(refLogoText.top, 5.dp)
                 end.linkTo(parent.end)
                 start.linkTo(parent.start)
@@ -154,22 +157,26 @@ fun RegisterScene(onCancel: () -> Unit) {
                         .clip(RoundedCornerShape(percent = 10))
 
                 )
-                Icon(
-                    Icons.Default.Edit,
-                    contentDescription = "...",
-                   // tint = AppTheme.colors.secondary,
-                    modifier = Modifier
-                        .background(Color.White, CircleShape)
-                        .padding(3.dp)
-                        .align(Alignment.CenterEnd)
-                        .size(18.dp)
-                        .clickable {
-                            scope.launch {
-                              val status =   permissionsManager.askPermission(PermissionType.GALLERY)
-                                if (status == PermissionStatus.GRANTED)
-                                    profileImage = photoManagerManager.getGalleryPhoto()!!
-                                else
-                                    snackBarHostState.showSnackbar("Permission Denied")
+
+                Column(modifier = Modifier.align(Alignment.CenterEnd)){
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = "...",
+                        // tint = AppTheme.colors.secondary,
+                        modifier = Modifier
+                            .background(Color.White, CircleShape)
+                            .padding(3.dp)
+                            .size(18.dp)
+                            .clickable {
+                                scope.launch {
+                                    val galleryPermission =
+                                        permissionsManager.askPermission(PermissionType.GALLERY)
+//                                val cameraPermission =
+//                                    permissionsManager.askPermission(PermissionType.CAMERA)
+                                    if (galleryPermission == PermissionStatus.GRANTED)
+                                        expandedPhotoSource = true
+                                    else
+                                        snackBarHostState.showSnackbar("Permission Denied")
 
 //                                try {
 //                                    controller.providePermission(Permission.GALLERY)
@@ -184,9 +191,34 @@ fun RegisterScene(onCancel: () -> Unit) {
 //                                    // Permission was denied.
 //                                    snackBarHostState.showSnackbar(denied.message.toString())
 //                                }
+                                }
+                            }
+                    )
+                    DropdownMenu(
+                        expanded = expandedPhotoSource,
+                        onDismissRequest = { expandedPhotoSource = false },
+                    ) {
+                        photoSourceOptions.forEach { item ->
+                            DropdownMenuItem(
+                                onClick = {
+                                    scope.launch {
+                                        profileImage = if (item == "Gallery")
+                                            photoManagerManager.getGalleryPhoto()!!
+                                        else
+                                            photoManagerManager.getCameraPhoto()!!
+                                    }
+                                    expandedPhotoSource = false
+                                }
+                            ) {
+                                Text(
+                                    text = item,
+                                    style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+                                )
                             }
                         }
-                )
+                    }
+                }
+
             }
 
             Text(
@@ -488,52 +520,52 @@ fun RegisterScene(onCancel: () -> Unit) {
                     )
                 }
             }
-
-            if (showDialog)
-                AlertDialog(
-                    text = {
-                        Text(
-                            "Are You Sure To Cancel?",
-                            style = AppTheme.typography.label.copy(color = AppTheme.colors.text)
-                        )
-                    },
-                    onDismissRequest = { showDialog = false },
-                    confirmButton = {
-                        Button(
-                            modifier = Modifier
-                                .padding(5.dp)
-                                .testTag("doCancel"),
-                            colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
-
-                            onClick = {
-                                showDialog = false
-                                onCancel()
-                            }
-                        ) {
-                            Text(
-                                "Confirm",
-                                style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
-                            )
-                        }
-                    },
-                    dismissButton = {
-                        Button(
-                            modifier = Modifier
-                                .padding(5.dp)
-                                .testTag("doCancel"),
-                            colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
-                            onClick = {
-                                showDialog = false
-                            }
-                        ) {
-                            Text(
-                                "Dismiss",
-                                style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
-                            )
-                        }
-                    },
-                )
         }
-    }
 
+
+        if (showDialog)
+            AlertDialog(
+                text = {
+                    Text(
+                        "Are You Sure To Cancel?",
+                        style = AppTheme.typography.label.copy(color = AppTheme.colors.text)
+                    )
+                },
+                onDismissRequest = { showDialog = false },
+                confirmButton = {
+                    Button(
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .testTag("doCancel"),
+                        colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
+
+                        onClick = {
+                            showDialog = false
+                            onCancel()
+                        }
+                    ) {
+                        Text(
+                            "Confirm",
+                            style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+                        )
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .testTag("doCancel"),
+                        colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
+                        onClick = {
+                            showDialog = false
+                        }
+                    ) {
+                        Text(
+                            "Dismiss",
+                            style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+                        )
+                    }
+                },
+            )
+    }
 }
