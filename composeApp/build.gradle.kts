@@ -11,8 +11,15 @@ kotlin {
     androidTarget {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "11"
+                jvmTarget = "17"
             }
+        }
+    }
+
+
+    jvm("desktop"){
+        compilations.all {
+            kotlinOptions.jvmTarget = "17"
         }
     }
 
@@ -28,7 +35,7 @@ kotlin {
     }
 
     sourceSets {
-
+        val desktopMain by getting
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
@@ -49,12 +56,13 @@ kotlin {
             implementation(libs.precompose)
             implementation(libs.precompose.viewmodel)
             implementation(libs.precompose.koin)
-            implementation(libs.permissions.compose) // permissions api + compose extensions
-            implementation(libs.media)
-            implementation(libs.media.compose)
-            implementation(libs.atomicfu)
+       //     implementation(libs.permissions.compose) // permissions api + compose extensions
+         //   implementation(libs.media)
+         //   implementation(libs.media.compose)
+         //   implementation(libs.atomicfu)
 
         }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(kotlin("test-common"))
@@ -65,6 +73,10 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.koin.test)
 
+        }
+
+        desktopMain.dependencies {
+            implementation(compose.desktop.currentOs)
         }
 
 
@@ -123,4 +135,17 @@ android {
 
     }
 }
+
+compose.desktop {
+    application {
+        mainClass = "MainKt"
+
+        nativeDistributions {
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "org.irfan.project"
+            packageVersion = "1.0.0"
+        }
+    }
+}
+
 

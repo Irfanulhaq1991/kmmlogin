@@ -1,6 +1,4 @@
 package view.registeration
-
-import dev.icerock.moko.permissions.Permission
 import PermissionStatus
 import PermissionType
 import androidx.compose.foundation.Image
