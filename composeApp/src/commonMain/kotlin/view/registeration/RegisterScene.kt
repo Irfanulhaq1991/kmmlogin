@@ -1,6 +1,8 @@
 package view.registeration
+
 import PermissionStatus
 import PermissionType
+import Platform
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -63,7 +66,7 @@ import rememberPhotoManager
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun RegisterScene(onCancel: () -> Unit) {
+fun RegisterScene(platform: Platform = Platform.PHONE, onCancel: () -> Unit) {
 
 
     var userName by remember { mutableStateOf("") }
@@ -83,7 +86,7 @@ fun RegisterScene(onCancel: () -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
     var expandedPhotoSource by remember { mutableStateOf(false) }
     val placeholder = imageResource(Res.drawable.placeholder)
-    var profileImage by remember { mutableStateOf(placeholder) }
+    var profilePhoto by remember { mutableStateOf(placeholder) }
 
     val permissionsManager = rememberPermissionManager()
     val photoManagerManager = rememberPhotoManager()
@@ -93,8 +96,8 @@ fun RegisterScene(onCancel: () -> Unit) {
         ConstraintLayout(
             modifier = Modifier
                 .background(AppTheme.colors.background)
-                .scrollable(rememberScrollState(), Orientation.Vertical)
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .fillMaxHeight()
                 .padding(15.dp)
         ) {
@@ -124,7 +127,7 @@ fun RegisterScene(onCancel: () -> Unit) {
                 horizontalBias = 0.522f
             }.size(130.dp)) {
                 Image(
-                    bitmap = profileImage,
+                    bitmap = profilePhoto,
                     //  bitmap = profileImage!!,
                     contentDescription = "...",
                     contentScale = ContentScale.Crop,
@@ -146,41 +149,51 @@ fun RegisterScene(onCancel: () -> Unit) {
                             .size(18.dp)
                             .clickable {
                                 scope.launch {
-                                    val galleryPermission =
-                                        permissionsManager.askPermission(PermissionType.GALLERY)
-                                    val cameraPermission =
-                                        permissionsManager.askPermission(PermissionType.CAMERA)
-                                    if (galleryPermission == PermissionStatus.GRANTED && cameraPermission == PermissionStatus.GRANTED)
-                                        expandedPhotoSource = true
-                                    else
-                                        snackBarHostState.showSnackbar("Permission Denied")
+                                    if (platform == Platform.PHONE) {
+                                        val galleryPermission =
+                                            permissionsManager.askPermission(PermissionType.GALLERY)
+                                        val cameraPermission =
+                                            permissionsManager.askPermission(PermissionType.CAMERA)
+                                        if (galleryPermission == PermissionStatus.GRANTED && cameraPermission == PermissionStatus.GRANTED)
+                                            expandedPhotoSource = true
+                                        else
+                                            snackBarHostState.showSnackbar("Permission Denied")
+                                    } else {
+                                        try {
+                                            profilePhoto = photoManagerManager.getGalleryPhoto()
+                                        } catch (e: Exception) {
+
+                                        }
+                                    }
                                 }
                             }
                     )
-                    DropdownMenu(
-                        expanded = expandedPhotoSource,
-                        onDismissRequest = { expandedPhotoSource = false },
-                    ) {
-                        photoSourceOptions.forEach { item ->
-                            DropdownMenuItem(
-                                onClick = {
-                                    scope.launch {
-                                        try {
-                                            profileImage = if (item == "Gallery")
-                                                photoManagerManager.getGalleryPhoto()
-                                            else
-                                                photoManagerManager.getCameraPhoto()
-                                        } catch (e: Exception) {
-                                             errorMessage = e.message ?: "Unknown Error occurred"
+                    if (platform == Platform.PHONE) {
+                        DropdownMenu(
+                            expanded = expandedPhotoSource,
+                            onDismissRequest = { expandedPhotoSource = false },
+                        ) {
+                            photoSourceOptions.forEach { item ->
+                                DropdownMenuItem(
+                                    onClick = {
+                                        scope.launch {
+                                            try {
+                                                profilePhoto = if (item == "Gallery")
+                                                    photoManagerManager.getGalleryPhoto()
+                                                else
+                                                    photoManagerManager.getCameraPhoto()
+                                            } catch (e: Exception) {
+                                                errorMessage = e.message ?: "Unknown Error occurred"
+                                            }
                                         }
+                                        expandedPhotoSource = false
                                     }
-                                    expandedPhotoSource = false
+                                ) {
+                                    Text(
+                                        text = item,
+                                        style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+                                    )
                                 }
-                            ) {
-                                Text(
-                                    text = item,
-                                    style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
-                                )
                             }
                         }
                     }

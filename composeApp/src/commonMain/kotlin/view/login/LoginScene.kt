@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
@@ -68,12 +69,12 @@ fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class),
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { contentPadding ->
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackBarHostState) }) { _ ->
 
         ConstraintLayout(
             modifier = Modifier
                 .background(AppTheme.colors.background)
-                .scrollable(rememberScrollState(), Orientation.Vertical)
+                .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .padding(15.dp)
@@ -244,7 +245,7 @@ fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class),
                 style = AppTheme.typography.body.copy(color = AppTheme.colors.text),
                 modifier = Modifier
                     .constrainAs(refRegisterText) {
-                        bottom.linkTo(parent.bottom, 5.dp)
+                        top.linkTo(refLoginBtn.bottom, 50.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }

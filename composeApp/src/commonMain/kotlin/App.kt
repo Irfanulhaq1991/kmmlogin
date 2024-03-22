@@ -7,9 +7,14 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import view.login.LoginScene
 import view.registeration.RegisterScene
 
+enum class Platform {
+    PHONE,
+    NON_PHONE
+}
+
 @Composable
 @Preview
-fun App() {
+fun App(platform: Platform = Platform.PHONE) {
 
     PreComposeApp {
         val navigator = rememberNavigator()
@@ -17,14 +22,14 @@ fun App() {
             NavHost(
                 navigator = navigator,
                 initialRoute = "/login",
-            ){
+            ) {
                 scene("/login") {
                     LoginScene(onRegisterClicked = {
                         navigator.navigate("/register")
                     })
                 }
                 scene("/register") {
-                    RegisterScene{ navigator.goBack() }
+                    RegisterScene(platform) { navigator.goBack() }
                 }
             }
         }

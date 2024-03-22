@@ -4,6 +4,6 @@ import androidx.compose.ui.window.application
 fun main() = application {
     initKoin()
     Window(onCloseRequest = ::exitApplication, title = "kmm_login") {
-        App()
+        App(Platform.NON_PHONE)
     }
 }
