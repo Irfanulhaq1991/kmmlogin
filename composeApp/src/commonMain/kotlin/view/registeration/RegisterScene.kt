@@ -1,5 +1,8 @@
 package view.registeration
 
+import dev.icerock.moko.permissions.Permission
+import PermissionStatus
+import PermissionType
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,15 +32,12 @@ import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,33 +48,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.irfan.composeexploration.ui.theme.theme3.AppTheme
-import dev.icerock.moko.media.compose.BindMediaPickerEffect
-import dev.icerock.moko.media.compose.rememberMediaPickerControllerFactory
-import dev.icerock.moko.media.compose.toImageBitmap
-import dev.icerock.moko.media.picker.MediaSource
-import dev.icerock.moko.permissions.DeniedAlwaysException
-import dev.icerock.moko.permissions.DeniedException
-import dev.icerock.moko.permissions.Permission
-import dev.icerock.moko.permissions.PermissionsController
-import dev.icerock.moko.permissions.compose.BindEffect
-import dev.icerock.moko.permissions.compose.PermissionsControllerFactory
-import dev.icerock.moko.permissions.compose.rememberPermissionsControllerFactory
 import kmmlogin.composeapp.generated.resources.Res
 import kmmlogin.composeapp.generated.resources.placeholder
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.imageResource
-import org.jetbrains.compose.resources.painterResource
 import rememberPermissionManager
 import rememberPhotoManager
 
@@ -92,6 +77,7 @@ fun RegisterScene(onCancel: () -> Unit) {
     val premiumNonPremiumOptions = listOf("Premium", "Non Premium")
     val (selectedOption, setSelectedOption) = remember { mutableStateOf(premiumNonPremiumOptions[0]) }
 
+    var errorMessage by remember { mutableStateOf("") }
     val genderOptions = listOf("Select Gender", "Male", "Female", "Prefer Not To Reveal")
     val photoSourceOptions = listOf("Gallery", "Camera")
     var selectedItem by remember { mutableStateOf(genderOptions[0]) }
@@ -101,14 +87,6 @@ fun RegisterScene(onCancel: () -> Unit) {
     val placeholder = imageResource(Res.drawable.placeholder)
     var profileImage by remember { mutableStateOf(placeholder) }
 
-//    val factory: PermissionsControllerFactory = rememberPermissionsControllerFactory()
-//    val controller: PermissionsController =
-//        remember(factory) { factory.createPermissionsController() }
-//    val mediaFactory = rememberMediaPickerControllerFactory()
-//    val mediaPicker = remember(mediaFactory) { mediaFactory.createMediaPickerController() }
-//
-//    BindEffect(controller)
-//    BindMediaPickerEffect(mediaPicker)
     val permissionsManager = rememberPermissionManager()
     val photoManagerManager = rememberPhotoManager()
 
@@ -123,7 +101,8 @@ fun RegisterScene(onCancel: () -> Unit) {
                 .padding(15.dp)
         ) {
 
-            val (refPhoto,
+            val (
+                refPhoto,
                 refLogoText,
                 refName,
                 refPassword,
@@ -158,7 +137,7 @@ fun RegisterScene(onCancel: () -> Unit) {
 
                 )
 
-                Column(modifier = Modifier.align(Alignment.CenterEnd)){
+                Column(modifier = Modifier.align(Alignment.CenterEnd)) {
                     Icon(
                         Icons.Default.Edit,
                         contentDescription = "...",
@@ -171,26 +150,12 @@ fun RegisterScene(onCancel: () -> Unit) {
                                 scope.launch {
                                     val galleryPermission =
                                         permissionsManager.askPermission(PermissionType.GALLERY)
-//                                val cameraPermission =
-//                                    permissionsManager.askPermission(PermissionType.CAMERA)
-                                    if (galleryPermission == PermissionStatus.GRANTED)
+                                    val cameraPermission =
+                                        permissionsManager.askPermission(PermissionType.CAMERA)
+                                    if (galleryPermission == PermissionStatus.GRANTED && cameraPermission == PermissionStatus.GRANTED)
                                         expandedPhotoSource = true
                                     else
                                         snackBarHostState.showSnackbar("Permission Denied")
-
-//                                try {
-//                                    controller.providePermission(Permission.GALLERY)
-//                                    // Permission has been granted successfully.
-//                                    val result = mediaPicker.pickImage(MediaSource.GALLERY)
-//                                    profileImage = result.toImageBitmap()
-//                                } catch (deniedAlways: DeniedAlwaysException) {
-//                                    // Permission is always denied.
-//                                    controller.openAppSettings()
-//                                    snackBarHostState.showSnackbar(deniedAlways.message.toString())
-//                                } catch (denied: DeniedException) {
-//                                    // Permission was denied.
-//                                    snackBarHostState.showSnackbar(denied.message.toString())
-//                                }
                                 }
                             }
                     )
@@ -202,10 +167,14 @@ fun RegisterScene(onCancel: () -> Unit) {
                             DropdownMenuItem(
                                 onClick = {
                                     scope.launch {
-                                        profileImage = if (item == "Gallery")
-                                            photoManagerManager.getGalleryPhoto()!!
-                                        else
-                                            photoManagerManager.getCameraPhoto()!!
+                                        try {
+                                            profileImage = if (item == "Gallery")
+                                                photoManagerManager.getGalleryPhoto()
+                                            else
+                                                photoManagerManager.getCameraPhoto()
+                                        } catch (e: Exception) {
+                                             errorMessage = e.message ?: "Unknown Error occurred"
+                                        }
                                     }
                                     expandedPhotoSource = false
                                 }
@@ -567,5 +536,34 @@ fun RegisterScene(onCancel: () -> Unit) {
                     }
                 },
             )
+
+        if (errorMessage.isNotEmpty())
+            AlertDialog(
+                text = {
+                    Text(
+                        errorMessage,
+                        style = AppTheme.typography.label.copy(color = AppTheme.colors.text)
+                    )
+                },
+                onDismissRequest = { errorMessage = "" },
+                confirmButton = {
+                    Button(
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .testTag("doOkay"),
+                        colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
+
+                        onClick = {
+                            errorMessage = ""
+                        }
+                    ) {
+                        Text(
+                            "Okay",
+                            style = AppTheme.typography.body.copy(color = AppTheme.colors.text)
+                        )
+                    }
+                },
+            )
     }
 }
+

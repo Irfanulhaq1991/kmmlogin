@@ -16,8 +16,8 @@ interface PermissionsManager{
 }
 
 interface PhotoManagerManager{
-    suspend fun getGalleryPhoto():ImageBitmap?
-    suspend fun getCameraPhoto():ImageBitmap?
+    suspend fun getGalleryPhoto():ImageBitmap
+    suspend fun getCameraPhoto():ImageBitmap
 }
 
 @Composable

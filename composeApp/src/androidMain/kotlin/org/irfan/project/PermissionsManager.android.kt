@@ -1,3 +1,4 @@
+
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -10,8 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import org.irfan.project.PermissionFragment
+import org.irfan.project.ResolutionFragment
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -21,18 +21,8 @@ internal class PermissionMangerAndroidImpl(
     private val context: Context,
 ) : PermissionsManager {
     override suspend fun askPermission(permission: PermissionType): PermissionStatus {
-        val fragmentManager = (context as FragmentActivity).supportFragmentManager
-        val currentFrag: Fragment? = fragmentManager.findFragmentByTag(permissionFragmentTag)
         val permissionFrag =
-            if (currentFrag != null)
-                currentFrag as PermissionFragment
-            else
-                PermissionFragment().also {
-                    fragmentManager
-                        .beginTransaction()
-                        .add(it, permissionFragmentTag)
-                        .commit()
-                }
+            getOrCreatePermissionFrag(context)
 
         val manifestPermission =  when (permission) {
             PermissionType.CAMERA -> {
@@ -73,32 +63,45 @@ internal class PermissionMangerAndroidImpl(
 }
 
 
-internal class PhotoManagerAndroidImpl(private val context: Context):PhotoManagerManager{
-    override suspend fun getGalleryPhoto(): ImageBitmap? {
-        val fragmentManager = (context as FragmentActivity).supportFragmentManager
-        val currentFrag: Fragment? = fragmentManager.findFragmentByTag(permissionFragmentTag)
+internal class PhotoManagerAndroidImpl(private val context: Context): PhotoManagerManager {
+    override suspend fun getGalleryPhoto(): ImageBitmap {
         val permissionFrag =
-            if (currentFrag != null)
-                currentFrag as PermissionFragment
-            else
-                PermissionFragment().also {
-                    fragmentManager
-                        .beginTransaction()
-                        .add(it, permissionFragmentTag)
-                        .commit()
-                }
-
-        return suspendCoroutine {continuation->
+            getOrCreatePermissionFrag(context)
+        return suspendCoroutine { continuation ->
             permissionFrag.getGalleryImage {
                 continuation.resume(it)
             }
         }
     }
 
-    override suspend fun getCameraPhoto(): ImageBitmap? {
-        TODO("Not yet implemented")
+
+    override suspend fun getCameraPhoto(): ImageBitmap {
+        val permissionFrag =
+            getOrCreatePermissionFrag(context)
+        return suspendCoroutine { continuation ->
+            permissionFrag.getCameraImage {
+                continuation.resume(it)
+            }
+        }
     }
 
+}
+
+
+private fun getOrCreatePermissionFrag(context: Context): ResolutionFragment {
+    val fragmentManager = (context as FragmentActivity).supportFragmentManager
+    val currentFrag: Fragment? = fragmentManager.findFragmentByTag(permissionFragmentTag)
+    val permissionFrag =
+        if (currentFrag != null)
+            currentFrag as ResolutionFragment
+        else
+            ResolutionFragment().also {
+                fragmentManager
+                    .beginTransaction()
+                    .add(it, permissionFragmentTag)
+                    .commit()
+            }
+    return permissionFrag
 }
 @Composable
 actual fun rememberPermissionManager(): PermissionsManager {
@@ -111,3 +114,5 @@ actual fun rememberPhotoManager(): PhotoManagerManager {
     val context = LocalContext.current
     return PhotoManagerAndroidImpl(context)
 }
+
+

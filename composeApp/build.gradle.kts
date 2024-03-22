@@ -1,4 +1,5 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
@@ -43,7 +44,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.constraintlayout.compose.multiplatform)
-            implementation( libs.koin.core)
+            implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.precompose)
             implementation(libs.precompose.viewmodel)
@@ -108,6 +109,7 @@ android {
         kotlinCompilerExtensionVersion = "1.5.8"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     compileOptions {

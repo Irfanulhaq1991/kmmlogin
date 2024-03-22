@@ -29,9 +29,8 @@ import platform.UIKit.UIApplicationOpenSettingsURLString
 import platform.UIKit.UIImage
 import platform.UIKit.UIImageJPEGRepresentation
 import platform.UIKit.UIImagePickerController
+import platform.UIKit.UIImagePickerControllerCameraCaptureMode
 import platform.UIKit.UIImagePickerControllerDelegateProtocol
-import platform.UIKit.UIImagePickerControllerEditedImage
-import platform.UIKit.UIImagePickerControllerOriginalImage
 import platform.UIKit.UIImagePickerControllerSourceType
 import platform.UIKit.UINavigationControllerDelegateProtocol
 import platform.darwin.NSObject
@@ -143,44 +142,86 @@ private suspend fun askCameraPermission(
 }
 
 
-internal class PhotoManagerIosImpl:PhotoManagerManager{
+internal class PhotoManagerIosImpl : PhotoManagerManager {
     @OptIn(ExperimentalForeignApi::class)
-    override suspend fun getGalleryPhoto(): ImageBitmap? {
-       return suspendCoroutine {continuation->
-        val imagePicker = UIImagePickerController()
-        val galleryDelegate =
-            object : NSObject(), UIImagePickerControllerDelegateProtocol,
-                UINavigationControllerDelegateProtocol {
-                override fun imagePickerController(
-                    picker: UIImagePickerController,
-                    didFinishPickingImage: UIImage,
-                    editingInfo: Map<Any?, *>?
-                ) {
+    override suspend fun getGalleryPhoto(): ImageBitmap {
+        return suspendCoroutine { continuation ->
+            val controller = UIImagePickerController()
+            val galleryDelegate =
+                object : NSObject(), UIImagePickerControllerDelegateProtocol,
+                    UINavigationControllerDelegateProtocol {
+                    override fun imagePickerController(
+                        picker: UIImagePickerController,
+                        didFinishPickingImage: UIImage,
+                        editingInfo: Map<Any?, *>?
+                    ) {
 
-                    val imageNsData = UIImageJPEGRepresentation(didFinishPickingImage, 1.0)
-                        ?: return
-                    val bytes = ByteArray(imageNsData.length.toInt())
-                    memcpy(bytes.refTo(0), imageNsData.bytes, imageNsData.length)
-                    val imageBitmap =   Image.makeFromEncoded(bytes).toComposeImageBitmap()
-                    continuation.resume(imageBitmap)
-                    picker.dismissViewControllerAnimated(true, null)
+                        val imageNsData = UIImageJPEGRepresentation(didFinishPickingImage, 1.0)
+                            ?: throw Exception("Could not select photo")
+                        val bytes = ByteArray(imageNsData.length.toInt())
+                        memcpy(bytes.refTo(0), imageNsData.bytes, imageNsData.length)
+                        val imageBitmap = Image.makeFromEncoded(bytes).toComposeImageBitmap()
+
+                        continuation.resume(imageBitmap)
+                        picker.dismissViewControllerAnimated(true, null)
+                    }
                 }
-            }
 
-           imagePicker.setSourceType(UIImagePickerControllerSourceType.UIImagePickerControllerSourceTypePhotoLibrary)
-           imagePicker.setDelegate(galleryDelegate)
-           UIApplication.sharedApplication.keyWindow?.rootViewController?.presentViewController(
-               imagePicker, true, null
-           )
+            controller.setSourceType(UIImagePickerControllerSourceType.UIImagePickerControllerSourceTypePhotoLibrary)
+            controller.setDelegate(galleryDelegate)
+            UIApplication.sharedApplication.keyWindow?.rootViewController?.presentViewController(
+                controller, true, null
+            )
         }
 
     }
 
-    override suspend fun getCameraPhoto(): ImageBitmap? {
-        TODO("Not yet implemented")
+    @OptIn(ExperimentalForeignApi::class)
+    override suspend fun getCameraPhoto(): ImageBitmap {
+        return suspendCoroutine { continuation ->
+            val controller = UIImagePickerController()
+            val galleryDelegate =
+                object : NSObject(), UIImagePickerControllerDelegateProtocol,
+                    UINavigationControllerDelegateProtocol {
+                    override fun imagePickerController(
+                        picker: UIImagePickerController,
+                        didFinishPickingImage: UIImage,
+                        editingInfo: Map<Any?, *>?
+                    ) {
+
+                        val imageNsData = UIImageJPEGRepresentation(didFinishPickingImage, 1.0)
+                            ?: throw Exception("Could not Capture photo")
+
+                        val bytes = ByteArray(imageNsData.length.toInt())
+                        memcpy(bytes.refTo(0), imageNsData.bytes, imageNsData.length)
+                        val imageBitmap = Image.makeFromEncoded(bytes).toComposeImageBitmap()
+
+                        continuation.resume(imageBitmap)
+                        picker.dismissViewControllerAnimated(true, null)
+                    }
+                }
+
+
+            val isCameraAvailable =
+                UIImagePickerController
+                    .isSourceTypeAvailable(UIImagePickerControllerSourceType.UIImagePickerControllerSourceTypeCamera)
+
+            if (!isCameraAvailable)
+                throw Exception("Camera is not available")
+
+
+            controller.setSourceType(UIImagePickerControllerSourceType.UIImagePickerControllerSourceTypeCamera)
+            controller.setCameraCaptureMode(UIImagePickerControllerCameraCaptureMode.UIImagePickerControllerCameraCaptureModePhoto)
+            controller.setDelegate(galleryDelegate)
+            UIApplication.sharedApplication.keyWindow?.rootViewController?.presentViewController(
+                controller, true, null
+            )
+
+        }
     }
 
 }
+
 @Composable
 actual fun rememberPermissionManager(): PermissionsManager {
     return PermissionMangerIosImpl()
