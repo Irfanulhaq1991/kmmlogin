@@ -1,3 +1,6 @@
+package unit_test
+
+import CountDownLatch
 import com.varabyte.truthish.assertThat
 import data.remote.UserRemoteDataSource
 import data.remote.UserRemoteDto

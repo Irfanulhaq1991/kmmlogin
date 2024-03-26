@@ -17,7 +17,6 @@ import view.login.LoginViewModel
 
 
 val shareMainModule = module {
-    factory<UsrApi> { FakApi() }
     factory<IUserRemoteDataSource> { UserRemoteDataSource(get()) }
     factory<IUserRepository> { UserRepository(get()) }
     factory<ILoginUseCase> { LoginUseCase(get()) }
@@ -25,6 +24,10 @@ val shareMainModule = module {
         LoginViewModel(get())
     }
 
+}
+
+val apiModule = module {
+    factory<UsrApi> { FakApi() }
 }
 
 

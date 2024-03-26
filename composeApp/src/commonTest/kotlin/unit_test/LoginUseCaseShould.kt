@@ -1,4 +1,4 @@
-
+package unit_test
 import data.IUserRepository
 import io.mockative.Mock
 import io.mockative.any
@@ -24,6 +24,7 @@ class LoginUseCaseShould {
 
     @Test
     fun invokeRepository()= runTest{
+
         coEvery { usrRepo.authenticate(any(),any()) }.returns(Result.success(User(1,"###")))
         loginUseCase("###","###")
         coVerify { usrRepo.authenticate(any(),any()) }

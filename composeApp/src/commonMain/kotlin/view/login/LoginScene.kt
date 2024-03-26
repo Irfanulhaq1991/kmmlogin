@@ -4,14 +4,22 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
@@ -36,8 +44,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,17 +60,20 @@ import com.irfan.composeexploration.ui.theme.theme3.AppTheme
 import kotlinx.coroutines.launch
 import moe.tlaster.precompose.flow.collectAsStateWithLifecycle
 import moe.tlaster.precompose.koin.koinViewModel
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class),onRegisterClicked:()->Unit) {
-
+fun LoginScene(
+    viewModel: LoginViewModel = koinViewModel(LoginViewModel::class),
+    onRegisterClicked: () -> Unit
+) {
 
     var userName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var rememberMe by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackBarHostState = remember { SnackbarHostState() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
 
     val state by viewModel.loginStateFlow.collectAsStateWithLifecycle(scope.coroutineContext)
 
@@ -75,9 +92,14 @@ fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class),
             modifier = Modifier
                 .background(AppTheme.colors.background)
                 .verticalScroll(rememberScrollState())
-                .fillMaxWidth()
-                .fillMaxHeight()
+                .fillMaxSize()
+                .testTag("root")
                 .padding(15.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures {
+                        keyboardController?.hide()
+                    }
+                }
         ) {
 
             val (refLogoIcon, refLogoText, refUsername, refPassword, refSwitch, refSwitchText, refLoginBtn, refRegisterText, refRegisterAction, refLoader) = createRefs()
@@ -104,17 +126,20 @@ fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class),
                         letterSpacing = 5.sp,
                         color = AppTheme.colors.text
                     ),
-                modifier = Modifier.constrainAs(refLogoText) {
-                    end.linkTo(parent.end)
-                    start.linkTo(parent.start)
-                    bottom.linkTo(topGuideline, 80.dp)
-                }
+                modifier = Modifier
+                    .testTag("login")
+                    .constrainAs(refLogoText) {
+                        end.linkTo(parent.end)
+                        start.linkTo(parent.start)
+                        bottom.linkTo(topGuideline, 80.dp)
+                    }
             )
             OutlinedTextField(
 
                 modifier = Modifier
                     .testTag("userName")
                     .fillMaxWidth()
+                    .focusRequester(focusRequester)
                     .border(
                         width = 1.dp,
                         color = AppTheme.colors.secondary,
@@ -128,6 +153,7 @@ fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class),
                 maxLines = 1,
                 value = userName,
                 onValueChange = { userName = it },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 placeholder = {
                     Text(
                         "Enter User Name",
@@ -147,6 +173,7 @@ fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class),
                 modifier = Modifier
                     .testTag("password")
                     .fillMaxWidth()
+                    .focusRequester(focusRequester)
                     .border(
                         width = 1.dp,
                         color = AppTheme.colors.secondary,
@@ -160,6 +187,11 @@ fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class),
                 maxLines = 1,
                 value = password,
                 onValueChange = { password = it },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = {
+                    keyboardController?.hide()
+                    viewModel.doLogin(userName, password)
+                }),
                 placeholder = {
                     Text(
                         "Enter Password",
@@ -220,6 +252,7 @@ fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class),
                     },
                 colors = ButtonDefaults.buttonColors(containerColor = AppTheme.colors.secondary),
                 onClick = {
+                    keyboardController?.hide()
                     viewModel.doLogin(userName, password)
                 }
 
@@ -231,11 +264,14 @@ fun LoginScene(viewModel: LoginViewModel = koinViewModel(LoginViewModel::class),
             }
             if (state.isLoading)
                 CircularProgressIndicator(
-                    modifier = Modifier.width(25.dp).constrainAs(refLoader) {
-                        top.linkTo(refLoginBtn.bottom, 10.dp)
-                        start.linkTo(refLoginBtn.start)
-                        end.linkTo(refLoginBtn.end)
-                    },
+                    modifier = Modifier
+                        .testTag("loader")
+                        .width(25.dp)
+                        .constrainAs(refLoader) {
+                            top.linkTo(refLoginBtn.bottom, 10.dp)
+                            start.linkTo(refLoginBtn.start)
+                            end.linkTo(refLoginBtn.end)
+                        },
                     color = MaterialTheme.colorScheme.secondary,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant,
                     strokeWidth = 2.dp
