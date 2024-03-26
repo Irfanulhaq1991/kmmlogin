@@ -209,7 +209,9 @@ fun RegisterScene(platform: Platform = Platform.PHONE, onCancel: () -> Unit) {
                         letterSpacing = 5.sp,
                         color = AppTheme.colors.text
                     ),
-                modifier = Modifier.constrainAs(refLogoText) {
+                modifier = Modifier
+                    .testTag("photo")
+                    .constrainAs(refLogoText) {
                     end.linkTo(parent.end)
                     start.linkTo(parent.start)
                     bottom.linkTo(topGuideline, 60.dp)

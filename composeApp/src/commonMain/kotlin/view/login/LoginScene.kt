@@ -280,6 +280,7 @@ fun LoginScene(
             Text("Click here to register",
                 style = AppTheme.typography.body.copy(color = AppTheme.colors.text),
                 modifier = Modifier
+                    .testTag("register")
                     .constrainAs(refRegisterText) {
                         top.linkTo(refLoginBtn.bottom, 50.dp)
                         start.linkTo(parent.start)

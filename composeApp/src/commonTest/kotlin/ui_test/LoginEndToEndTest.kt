@@ -50,7 +50,6 @@ import kotlin.test.Test
 
 // does works on iOS
 class LoginEndToEndTest:KoinTest {
-
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun test_Loader_Displayed_On_Done_Taped() = runComposeUiTest {
@@ -91,5 +90,19 @@ class LoginEndToEndTest:KoinTest {
         }
         onNodeWithTag("doLogin").performClick()
         onNodeWithText("Unknown Error").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun test_Register_Screen_Displayed_On_Register_Clicked() = runComposeUiTest {
+        setContent {
+            App()
+        }
+        onNodeWithTag("register").performClick()
+        onNodeWithTag("photo").isDisplayed()
+        onNodeWithTag("doCancel").performClick()
+        onNodeWithText("Confirm").isDisplayed()
+        onNodeWithText("Confirm").performClick()
+        onNodeWithTag("doLogin").isDisplayed()
     }
 }
